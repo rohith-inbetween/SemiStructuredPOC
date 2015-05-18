@@ -1,4 +1,10 @@
 
+.innerBorder {
+    box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+}
+
 div#wrapperDiv {
     margin: 0 auto;
     height: 627px;
@@ -21,9 +27,6 @@ div#rightPanel {
 }
 
 div.panel {
-    box-sizing:border-box;
-    -moz-box-sizing:border-box;
-    -webkit-box-sizing:border-box;
     position: relative;
     float: left;
     height: 100%;
@@ -41,4 +44,14 @@ div#rightContainer {
 
 div.panelContainer {
     background-color: #B5B4B4;
+}
+
+div#controlsContainer {
+    color: white;
+}
+
+.control {
+    height: 20px;
+    margin-bottom: 5px;
+    background-color: grey;
 }
