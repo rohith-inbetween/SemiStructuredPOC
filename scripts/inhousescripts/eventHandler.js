@@ -1,5 +1,8 @@
-function handleCreateTextEditor($element){
+function createTextEditorInContainer($element){
 
-    $element.editable({inlineMode:false});
+    var $newEditorDiv = $('<div class="right-container-dropped-text-field">');
+    $element.append($newEditorDiv);
+
+    $newEditorDiv.editable({inlineMode:false});
 
 }
