@@ -109,3 +109,11 @@ div#imageContainer {
     width: 10px;
     border: 1px solid #ffffff;
 }
+
+#richTextControl, #imageControl{
+    cursor: url(../images/openhand.cur), move;
+}
+
+.on-drag{
+    cursor: url(../images/closedhand.cur), move;
+}

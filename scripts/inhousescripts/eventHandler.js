@@ -9,7 +9,7 @@ function attachEventsOnElement () {
                               var dragHeight = 10;
                               var dragWidth = 10;
 
-                              return $('<div class="dragHelperDiv" >');
+                              return $('<div class="dragHelperDiv on-drag" >');
                             },
                             start: function (event, ui) {
                               enableGrabCursor();
