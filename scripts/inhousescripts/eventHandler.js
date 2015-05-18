@@ -29,11 +29,17 @@ function attachEventsOnElement () {
 
 function createTextEditorInContainer($element){
 
-    var $newEditorDiv = $('<div class="right-container-dropped-text-field">');
-    $newEditorDiv.editable({inlineMode:false});
+    $element.append(getTextEditorDiv());
 
-    $element.append($newEditorDiv);
+}
 
+function getTextEditorDiv(){
+    var $newEditorContainer = $('<div class="right-container-dropped-text-field">');
+    var $editor = $('<div class="text-editor">');
+    $newEditorContainer.append($editor);
+    $editor.editable({inlineMode:false});
+
+    return $newEditorContainer;
 }
 
 function createImageInsertInContainer($element){
