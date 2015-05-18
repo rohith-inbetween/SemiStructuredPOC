@@ -1,0 +1,44 @@
+
+div#wrapperDiv {
+    margin: 0 auto;
+    height: 627px;
+    width: 100%;
+    background-color: #E4E2E2;
+}
+
+div#container {
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
+
+div#leftPanel {
+    width: 10%;
+}
+
+div#rightPanel {
+    width: 90%;
+}
+
+div.panel {
+    box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    position: relative;
+    float: left;
+    height: 100%;
+    border: 1px solid #000000;
+    padding: 5px;
+}
+
+div#leftContainer {
+    height: 100%;
+}
+
+div#rightContainer {
+    height: 100%;
+}
+
+div.panelContainer {
+    background-color: #B5B4B4;
+}
