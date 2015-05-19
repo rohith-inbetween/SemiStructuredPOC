@@ -42,7 +42,7 @@ function attachEventsOnElement () {
   $('body').on('click', '.insert-image-button', inserImageButtonClicked);
 
   $('body').on('change', '#fileUpload', function (oEvent) {
-    var $addImageButton = $(oEvent.currentTarget).siblings('.insert-image-button').hide();
+    $(oEvent.currentTarget).siblings('.insert-image-button,.insert-image-label').hide();
     $imageDiv = $(oEvent.currentTarget).siblings('.imageDiv').show();
 
     var oImageFiles = oEvent.target.files; // FileList object
@@ -107,7 +107,7 @@ function createImageInsertInContainer ($element) {
 function getImageInsert () {
   var $newImageContainer = $('<div class="right-container-dropped-image-container control-component fitContentToFrame">');
   var $imageContainer = $('<div id="imageContainer"></div>');
-  var $addImageButton = $('<input id="fileUpload" type="file" accept="image/*" style="display: none"/><div class="insert-image-button" title="Add Image">');
+  var $addImageButton = $('<input id="fileUpload" type="file" accept="image/*" style="display: none"/><div class="insert-image-button" title="Add Image"/><div class="insert-image-label">Click to add image</div>');
   var $imageDiv = $('<img src="" class="imageDiv hasmenu" style="display: none"/>');
   $imageContainer.append($addImageButton);
   $imageContainer.append($imageDiv);

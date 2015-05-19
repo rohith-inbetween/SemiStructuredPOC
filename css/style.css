@@ -76,6 +76,10 @@ div#controlsContainer {
     margin: 0 auto;
 }
 
+.insert-image-button:hover{
+    cursor: pointer;
+}
+
 .right-container-dropped-image-container.fitContentToFrame {
     height: 100px;
     width: 100%;
