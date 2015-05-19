@@ -41,8 +41,8 @@ function attachEventsOnElement () {
 
   $('body').on('click', '.insert-image-button', inserImageButtonClicked);
 
-  $('body').on('change', '#fileUpload', function (oEvent) {
-    $(oEvent.currentTarget).siblings('.insert-image-button,.insert-image-label').hide();
+  $('body').on('change', '.fileUpload', function (oEvent) {
+    $(oEvent.currentTarget).siblings('.insert-image-button,.insert-image-label').remove();
     $imageDiv = $(oEvent.currentTarget).siblings('.imageDiv').show();
 
     var oImageFiles = oEvent.target.files; // FileList object
@@ -106,8 +106,8 @@ function createImageInsertInContainer ($element) {
 
 function getImageInsert () {
   var $newImageContainer = $('<div class="right-container-dropped-image-container control-component fitContentToFrame">');
-  var $imageContainer = $('<div id="imageContainer"></div>');
-  var $addImageButton = $('<input id="fileUpload" type="file" accept="image/*" style="display: none"/><div class="insert-image-button" title="Add Image"/><div class="insert-image-label">Click to add image</div>');
+  var $imageContainer = $('<div class="imageContainer"></div>');
+  var $addImageButton = $('<input class="fileUpload" type="file" accept="image/*" style="display: none"/><div class="insert-image-button" title="Add Image"/><div class="insert-image-label">Click to add image</div>');
   var $imageDiv = $('<img src="" class="imageDiv hasmenu" style="display: none"/>');
   $imageContainer.append($addImageButton);
   $imageContainer.append($imageDiv);
@@ -118,7 +118,7 @@ function getImageInsert () {
 
 function inserImageButtonClicked (oEvent) {
   var $button = $(oEvent.currentTarget);
-  var $fileUploader = $button.prev('#fileUpload');
+  var $fileUploader = $button.prev('.fileUpload');
   $fileUploader.click();
 }
 
@@ -156,4 +156,21 @@ function appendSeperatorDiv ($element) {
 function applyImageScalingCss ($element, sCssClass) {
   $element.removeClass('fitContentToFrame fitFrameToContent');
   $element.addClass(sCssClass);
+}
+
+function exportContentHTML(){
+  var sHtmlContent = '';
+  var $containerElements = $('#rightContainer').children();
+  for(var iContainerIndex = 0 ; iContainerIndex < $containerElements.size() ; iContainerIndex++){
+    var $container = $containerElements.eq(iContainerIndex);
+    if($container.hasClass('right-container-dropped-text-field')){
+      var $textEditorDiv = $container.children('.text-editor').eq(0);
+      sHtmlContent = sHtmlContent.concat($textEditorDiv.editable('getHTML',true,true));
+    } else if($container.hasClass('right-container-dropped-image-container')){
+      var $imageContainer = $container.children('.imageContainer').eq(0);
+      sHtmlContent = sHtmlContent.concat($imageContainer.html());
+    }
+  }
+
+  return sHtmlContent;
 }

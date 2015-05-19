@@ -103,7 +103,7 @@ div#controlsContainer {
     width: 100px;
 }*/
 
-div#imageContainer {
+div.imageContainer {
     height: 100%;
     margin: auto;
 }
