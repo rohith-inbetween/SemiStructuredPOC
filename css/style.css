@@ -103,3 +103,9 @@ div#imageContainer {
 .froala-editor {
     border-top: solid 1px #252525 !important;
 }
+
+.dragHelperDiv {
+    height: 10px;
+    width: 10px;
+    border: 1px solid #ffffff;
+}

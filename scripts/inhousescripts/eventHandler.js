@@ -9,11 +9,7 @@ function attachEventsOnElement () {
                               var dragHeight = 10;
                               var dragWidth = 10;
 
-                              return $('<div id="dragHelperDiv">', {
-                                style: 'height: ' + dragHeight + 'px; ' +
-                                'width: ' + dragWidth + 'px; ' +
-                                'border: 1px solid white;'
-                              });
+                              return $('<div class="dragHelperDiv" >');
                             },
                             start: function (event, ui) {
                               enableGrabCursor();
@@ -109,11 +105,11 @@ function addImageToContainer (oImageFiles) {
 }
 
 function enableGrabCursor () {
-  $('body').css('cursor','url(../images/closedhand.cur),move');
+  $('body').css('cursor', 'url(../images/closedhand.cur),move');
 }
 
-function disableGrabCursor ()  {
-  $('body').css('cursor','');
+function disableGrabCursor () {
+  $('body').css('cursor', '');
 }
 
 function appendSeperatorDiv ($element) {
