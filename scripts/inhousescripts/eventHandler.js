@@ -50,7 +50,18 @@ function attachEventsOnElement () {
 
   $("#rightContainer").contextmenu({
                                      delegate: ".hasmenu",
-                                     menu: aMenuItems,
+                                     menu: [
+                                       {
+                                         title: "Fit Content to Frame",
+                                         cmd: "fitContentToFrame",
+                                         uiIcon: "ui-icon-arrow-4"
+                                       },
+                                       {
+                                         title: "Fit Frame to Content",
+                                         cmd: "fitFrameToContent",
+                                         uiIcon: "ui-icon-arrow-4-diag"
+                                       }
+                                     ],
                                      select: function (event, ui) {
                                        var $contextMenuContainer = ui.target;
                                        var $container = $contextMenuContainer.parents('.right-container-dropped-image-container');
@@ -61,11 +72,11 @@ function attachEventsOnElement () {
                                        var $contextMenuContainer = ui.target;
                                        var $container = $contextMenuContainer.parents('.right-container-dropped-image-container');
                                        if ($container.hasClass('fitContentToFrame')) {
-                                         aMenuItems[0].disabled = true;
-                                         aMenuItems[1].disabled = false;
+                                         $('#rightContainer').contextmenu("showEntry", "fitContentToFrame", false);
+                                         $('#rightContainer').contextmenu("showEntry", "fitFrameToContent", true);
                                        } else {
-                                         aMenuItems[0].disabled = false;
-                                         aMenuItems[1].disabled = true;
+                                         $('#rightContainer').contextmenu("showEntry", "fitFrameToContent", false);
+                                         $('#rightContainer').contextmenu("showEntry", "fitContentToFrame", true);
                                        }
                                      }
                                    });
