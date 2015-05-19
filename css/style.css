@@ -76,22 +76,42 @@ div#controlsContainer {
     margin: 0 auto;
 }
 
-.right-container-dropped-image-container {
+.right-container-dropped-image-container.fitContentToFrame {
     height: 100px;
+    width: 100%;
     background-color: #ffffff;
-    padding: 10px;
+    padding: 10px 0 10px 0;
+    text-align: center;
 }
 
-img.imageDiv {
+.right-container-dropped-image-container.fitFrameToContent {
+    min-height: 100px;
+    height: auto;
+    width: 100%;
+    background-color: #ffffff;
+    padding: 10px 0 10px 0;
+    text-align: center;
+}
+
+/*img.imageDiv {
     margin: 0 auto;
     height: 100px;
     width: 100px;
-}
+}*/
 
 div#imageContainer {
     height: 100%;
-    width: 100px;
-    margin: 0 auto;
+    margin: auto;
+}
+
+.right-container-dropped-image-container.fitFrameToContent img.imageDiv{
+    max-width: 100%;
+}
+
+.right-container-dropped-image-container.fitContentToFrame img.imageDiv{
+    height: 100%;
+    width: auto;
+    max-width: 100%;
 }
 
 .right-container-field-seperator {
