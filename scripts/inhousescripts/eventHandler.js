@@ -34,7 +34,7 @@ function attachEventsOnElement () {
                                        appendSeperatorDiv($(this));
                                        createImageInsertInContainer($(this));
                                      }
-                                     $(this).animate({ scrollTop: $(this)[0].scrollHeight}, 500);
+                                     $(this).animate({scrollTop: $(this)[0].scrollHeight}, 500);
                                    },
                                    accept: ".control"
                                  });
@@ -81,6 +81,8 @@ function attachEventsOnElement () {
                                        }
                                      }
                                    });
+
+  $('#exportHTML').click('click', exportToHtmlButtonClicked);
 }
 
 function createTextEditorInContainer ($element) {
@@ -106,9 +108,11 @@ function createImageInsertInContainer ($element) {
 
 function getImageInsert () {
   var $newImageContainer = $('<div class="right-container-dropped-image-container control-component fitContentToFrame">');
+  $newImageContainer.css(oFitContentToFrameCss);
   var $imageContainer = $('<div class="imageContainer"></div>');
   var $addImageButton = $('<input class="fileUpload" type="file" accept="image/*" style="display: none"/><div class="insert-image-button" title="Add Image"/><div class="insert-image-label">Click to add image</div>');
   var $imageDiv = $('<img src="" class="imageDiv hasmenu" style="display: none"/>');
+  $imageDiv.css(oImageDivCssForFitToFrame);
   $imageContainer.append($addImageButton);
   $imageContainer.append($imageDiv);
   $newImageContainer.append($imageContainer);
@@ -156,21 +160,37 @@ function appendSeperatorDiv ($element) {
 function applyImageScalingCss ($element, sCssClass) {
   $element.removeClass('fitContentToFrame fitFrameToContent');
   $element.addClass(sCssClass);
+  if (sCssClass == "fitContentToFrame") {
+    $element.css(oFitContentToFrameCss);
+    $element.find('img').css(oImageDivCssForFitToContent);
+  } else {
+    $element.css(oFitFrameToContentCss);
+    $element.find('img').css(oImageDivCssForFitToFrame);
+  }
 }
 
-function exportContentHTML(){
+function exportToHtmlButtonClicked (oEvent) {
+  var sContentHTML = getContentHTML();
+  openHtmlInNewWindoe(sContentHTML);
+}
+
+function getContentHTML () {
   var sHtmlContent = '';
   var $containerElements = $('#rightContainer').children();
-  for(var iContainerIndex = 0 ; iContainerIndex < $containerElements.size() ; iContainerIndex++){
+  for (var iContainerIndex = 0; iContainerIndex < $containerElements.size(); iContainerIndex++) {
     var $container = $containerElements.eq(iContainerIndex);
-    if($container.hasClass('right-container-dropped-text-field')){
+    if ($container.hasClass('right-container-dropped-text-field')) {
       var $textEditorDiv = $container.children('.text-editor').eq(0);
-      sHtmlContent = sHtmlContent.concat($textEditorDiv.editable('getHTML',true,true));
-    } else if($container.hasClass('right-container-dropped-image-container')){
-      var $imageContainer = $container.children('.imageContainer').eq(0);
-      sHtmlContent = sHtmlContent.concat($imageContainer.html());
+      sHtmlContent = sHtmlContent.concat($textEditorDiv.editable('getHTML', true, true));
+    } else if ($container.hasClass('right-container-dropped-image-container')) {
+      sHtmlContent = sHtmlContent.concat($container[0].outerHTML);
     }
   }
 
   return sHtmlContent;
+}
+
+function openHtmlInNewWindoe (sHtml) {
+  var oWindow = window.open();
+  $(oWindow.document.body).html(sHtml);
 }
