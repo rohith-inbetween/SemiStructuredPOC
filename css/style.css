@@ -54,6 +54,11 @@ div#controlsContainer {
     height: 20px;
     margin-bottom: 5px;
     background-color: grey;
+    text-align: center;
+    font-family: sans-serif;
+    font-style: oblique;
+    font-size: small;
+    line-height: 20px;
 }
 
 .insert-image-button {

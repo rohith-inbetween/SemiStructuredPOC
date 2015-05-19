@@ -67,7 +67,6 @@ function createImageInsertInContainer ($element) {
 }
 
 function getImageInsert () {
-
   var $newImageContainer = $('<div class="right-container-dropped-image-container">');
   var $imageContainer = $('<div id="imageContainer"></div>');
   var $addImageButton = $('<input id="fileUpload" type="file" accept="image/*" style="display: none"/><div class="insert-image-button" title="Add Image">');
@@ -91,10 +90,9 @@ function addImageToContainer (oImageFiles) {
 
   oFileReader.onload = (function (file) {
     return function (e) {
-      var sImage = '';
       if (file.type.indexOf('image') != -1) {
         $imageDiv.attr('src', e.target.result);
-
+        $imageDiv = null;
       }
     }
   })(oImageFile);
