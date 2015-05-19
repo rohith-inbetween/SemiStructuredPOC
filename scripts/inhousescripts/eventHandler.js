@@ -47,6 +47,28 @@ function attachEventsOnElement () {
     var oImageFiles = oEvent.target.files; // FileList object
     addImageToContainer(oImageFiles);
   });
+
+  $("#rightContainer").contextmenu({
+                                     delegate: ".hasmenu",
+                                     menu: aMenuItems,
+                                     select: function (event, ui) {
+                                       var $contextMenuContainer = ui.target;
+                                       var $container = $contextMenuContainer.parents('.right-container-dropped-image-container');
+                                       var sCssClass = ui.cmd;
+                                       applyImageScalingCss($container, sCssClass);
+                                     },
+                                     beforeOpen: function (event, ui) {
+                                       var $contextMenuContainer = ui.target;
+                                       var $container = $contextMenuContainer.parents('.right-container-dropped-image-container');
+                                       if ($container.hasClass('fitContentToFrame')) {
+                                         aMenuItems[0].disabled = true;
+                                         aMenuItems[1].disabled = false;
+                                       } else {
+                                         aMenuItems[0].disabled = false;
+                                         aMenuItems[1].disabled = true;
+                                       }
+                                     }
+                                   });
 }
 
 function createTextEditorInContainer ($element) {
@@ -74,7 +96,7 @@ function getImageInsert () {
   var $newImageContainer = $('<div class="right-container-dropped-image-container control-component fitContentToFrame">');
   var $imageContainer = $('<div id="imageContainer"></div>');
   var $addImageButton = $('<input id="fileUpload" type="file" accept="image/*" style="display: none"/><div class="insert-image-button" title="Add Image">');
-  var $imageDiv = $('<img src="" class="imageDiv" style="display: none"/>');
+  var $imageDiv = $('<img src="" class="imageDiv hasmenu" style="display: none"/>');
   $imageContainer.append($addImageButton);
   $imageContainer.append($imageDiv);
   $newImageContainer.append($imageContainer);
@@ -117,4 +139,9 @@ function appendSeperatorDiv ($element) {
     var $seperatorDiv = $('<div class="right-container-field-seperator innerBorder">');
     $element.append($seperatorDiv);
   }
+}
+
+function applyImageScalingCss ($element, sCssClass) {
+  $element.removeClass('fitContentToFrame fitFrameToContent');
+  $element.addClass(sCssClass);
 }
