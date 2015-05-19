@@ -6,10 +6,10 @@ function onDocumentReady () {
 function attachEventsOnElement () {
   $('.control').draggable({
                             helper: function () {
-                              var dragHeight = 20;
-                              var dragWidth = 20;
+                              var dragHeight = 10;
+                              var dragWidth = 10;
 
-                              return $('<div>', {
+                              return $('<div id="dragHelperDiv">', {
                                 style: 'height: ' + dragHeight + 'px; ' +
                                 'width: ' + dragWidth + 'px; ' +
                                 'border: 1px solid white;'
@@ -21,7 +21,7 @@ function attachEventsOnElement () {
                             stop: function (event, ui) {
                               disableGrabCursor();
                             },
-                            cursorAt: {top: 5, left: 5},
+                            cursorAt: {top: 10, left: 10},
                             revert: 'invalid',
                             appendTo: 'body'
                           });
@@ -31,12 +31,12 @@ function attachEventsOnElement () {
                                      var $draggable = ui.draggable;
 
                                      if ($draggable.attr('id') == "richTextControl") {
-                                       createTextEditorInContainer($(this));
                                        appendSeperatorDiv($(this));
+                                       createTextEditorInContainer($(this));
 
                                      } else if ($draggable.attr('id') == "imageControl") {
-                                       createImageInsertInContainer($(this));
                                        appendSeperatorDiv($(this));
+                                       createImageInsertInContainer($(this));
                                      }
                                    },
                                    accept: ".control"
@@ -60,7 +60,7 @@ function createTextEditorInContainer ($element) {
 }
 
 function getTextEditorDiv () {
-  var $newEditorContainer = $('<div class="right-container-dropped-text-field">');
+  var $newEditorContainer = $('<div class="right-container-dropped-text-field control-component">');
   var $editor = $('<div class="text-editor">');
   $newEditorContainer.append($editor);
   $editor.editable({inlineMode: false});
@@ -117,6 +117,8 @@ function disableGrabCursor ()  {
 }
 
 function appendSeperatorDiv ($element) {
-  var $seperatorDiv = $('<div class="right-container-field-seperator innerBorder">');
-  $element.append($seperatorDiv);
+  if ($('#rightContainer .control-component').length > 0) {
+    var $seperatorDiv = $('<div class="right-container-field-seperator innerBorder">');
+    $element.append($seperatorDiv);
+  }
 }
