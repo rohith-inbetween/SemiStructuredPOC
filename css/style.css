@@ -56,4 +56,28 @@ div#controlsContainer {
     background-color: grey;
 }
 
+.insert-image-button {
+    height: 20px;
+    width: 20px;
+    background-image: url("../images/add.ico");
+    background-size: 100% 100%;
+    margin: 0 auto;
+}
 
+.right-container-dropped-image-container {
+    height: 100px;
+    background-color: #ffffff;
+    padding: 10px;
+}
+
+img.imageDiv {
+    margin: 0 auto;
+    height: 100px;
+    width: 100px;
+}
+
+div#imageContainer {
+    height: 100%;
+    width: 100px;
+    margin: 0 auto;
+}
