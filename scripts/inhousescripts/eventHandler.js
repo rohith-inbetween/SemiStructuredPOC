@@ -75,7 +75,7 @@ function createImageInsertInContainer ($element) {
 }
 
 function getImageInsert () {
-  var $newImageContainer = $('<div class="right-container-dropped-image-container">');
+  var $newImageContainer = $('<div class="right-container-dropped-image-container control-component">');
   var $imageContainer = $('<div id="imageContainer"></div>');
   var $addImageButton = $('<input id="fileUpload" type="file" accept="image/*" style="display: none"/><div class="insert-image-button" title="Add Image">');
   var $imageDiv = $('<img src="" class="imageDiv" style="display: none"/>');
