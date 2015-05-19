@@ -90,3 +90,9 @@ div#imageContainer {
     width: 100px;
     margin: 0 auto;
 }
+
+.right-container-field-seperator {
+    margin: 10px auto 10px auto;
+    height: 2px;
+    border: 1px solid #000000;
+}

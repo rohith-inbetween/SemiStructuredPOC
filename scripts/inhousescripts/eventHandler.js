@@ -32,9 +32,11 @@ function attachEventsOnElement () {
 
                                      if ($draggable.attr('id') == "richTextControl") {
                                        createTextEditorInContainer($(this));
+                                       appendSeperatorDiv($(this));
 
                                      } else if ($draggable.attr('id') == "imageControl") {
                                        createImageInsertInContainer($(this));
+                                       appendSeperatorDiv($(this));
                                      }
                                    },
                                    accept: ".control"
@@ -112,4 +114,9 @@ function enableGrabCursor () {
 
 function disableGrabCursor ()  {
   $('body').css('cursor','');
+}
+
+function appendSeperatorDiv ($element) {
+  var $seperatorDiv = $('<div class="right-container-field-seperator innerBorder">');
+  $element.append($seperatorDiv);
 }
