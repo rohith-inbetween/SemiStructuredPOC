@@ -15,6 +15,12 @@ function attachEventsOnElement () {
                                 'border: 1px solid white;'
                               });
                             },
+                            start: function (event, ui) {
+                              enableGrabCursor();
+                            },
+                            stop: function (event, ui) {
+                              disableGrabCursor();
+                            },
                             cursorAt: {top: 5, left: 5},
                             revert: 'invalid',
                             appendTo: 'body'
@@ -98,4 +104,12 @@ function addImageToContainer (oImageFiles) {
   })(oImageFile);
 
   oFileReader.readAsDataURL(oImageFile);
+}
+
+function enableGrabCursor () {
+  $('body').css('cursor','url(../images/closedhand.cur),move');
+}
+
+function disableGrabCursor ()  {
+  $('body').css('cursor','');
 }
