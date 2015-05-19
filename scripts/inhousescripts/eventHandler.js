@@ -34,6 +34,7 @@ function attachEventsOnElement () {
                                        appendSeperatorDiv($(this));
                                        createImageInsertInContainer($(this));
                                      }
+                                     $(this).animate({ scrollTop: $(this)[0].scrollHeight}, 500);
                                    },
                                    accept: ".control"
                                  });
