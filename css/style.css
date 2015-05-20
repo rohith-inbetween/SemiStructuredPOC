@@ -108,11 +108,11 @@ div.imageContainer {
     margin: auto;
 }
 
-.right-container-dropped-image-container.fitFrameToContent img.imageDiv{
+.right-container-dropped-image-container.fitFrameToContent img.imageDiv.fitFrameToContent {
     max-width: 100%;
 }
 
-.right-container-dropped-image-container.fitContentToFrame img.imageDiv{
+.right-container-dropped-image-container.fitContentToFrame img.imageDiv.fitContentToFrame {
     height: 100%;
     width: auto;
     max-width: 100%;
