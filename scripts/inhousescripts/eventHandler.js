@@ -1,5 +1,5 @@
 function onDocumentReady () {
-
+  addContentsToListInLeftPanel();
   attachEventsOnElement();
 }
 
@@ -33,21 +33,16 @@ function attachEventsOnElement () {
                                      } else if ($draggable.attr('id') == "imageControl") {
                                        appendSeperatorDiv($(this));
                                        createImageInsertInContainer($(this));
+                                     } else {
+                                       var sContentHTML = applicationData.contentData[$draggable.attr('data-name')].html;
+                                       var $contentHolderDiv = $('<div></div>');
+                                       $contentHolderDiv.html(sContentHTML);
+                                       loadContentInRightPanel($contentHolderDiv);
                                      }
                                      $(this).animate({scrollTop: $(this)[0].scrollHeight}, 500);
                                    },
                                    accept: ".control"
                                  });
-
-  $('body').on('click', '.insert-image-button', inserImageButtonClicked);
-
-  $('body').on('change', '.fileUpload', function (oEvent) {
-    $(oEvent.currentTarget).siblings('.insert-image-button,.insert-image-label').remove();
-    $imageDiv = $(oEvent.currentTarget).siblings('.imageDiv').show();
-
-    var oImageFiles = oEvent.target.files; // FileList object
-    addImageToContainer(oImageFiles);
-  });
 
   $("#rightContainer").contextmenu({
                                      delegate: ".hasmenu",
@@ -82,7 +77,17 @@ function attachEventsOnElement () {
                                      }
                                    });
 
-  $('#exportHTML').click('click', exportToHtmlButtonClicked);
+  $('#exportHTML').on('click', exportToHtmlButtonClicked);
+  $('#saveContent').on('click', saveContentButtonClicked);
+  $('body').on('click', '.insert-image-button', insertImageButtonClicked);
+
+  $('body').on('change', '.fileUpload', function (oEvent) {
+    $(oEvent.currentTarget).siblings('.insert-image-button,.insert-image-label').remove();
+    $imageDiv = $(oEvent.currentTarget).siblings('.imageDiv').show();
+
+    var oImageFiles = oEvent.target.files; // FileList object
+    addImageToContainer(oImageFiles);
+  });
 }
 
 function createTextEditorInContainer ($element) {
@@ -91,13 +96,18 @@ function createTextEditorInContainer ($element) {
 
 }
 
-function getTextEditorDiv () {
+function getTextEditorDiv (sHtml) {
   var $newEditorContainer = $('<div class="right-container-dropped-text-field control-component">');
   var $editor = $('<div class="text-editor">');
   $newEditorContainer.append($editor);
   $editor.editable({
-                     inlineMode: false
+                     inlineMode: false,
+                     allowStyle: true
                    });
+
+  if (sHtml) {
+    $editor.editable('setHTML', sHtml);
+  }
 
   return $newEditorContainer;
 }
@@ -122,7 +132,7 @@ function getImageInsert () {
   return $newImageContainer;
 }
 
-function inserImageButtonClicked (oEvent) {
+function insertImageButtonClicked (oEvent) {
   var $button = $(oEvent.currentTarget);
   var $fileUploader = $button.prev('.fileUpload');
   $fileUploader.click();
@@ -184,7 +194,9 @@ function getContentHTML () {
     var $container = $containerElements.eq(iContainerIndex);
     if ($container.hasClass('right-container-dropped-text-field')) {
       var $textEditorDiv = $container.children('.text-editor').eq(0);
-      sHtmlContent = sHtmlContent.concat($textEditorDiv.editable('getHTML', true, true));
+      var $froalaView = $textEditorDiv.find('.froala-view').clone();
+      $froalaView.html($textEditorDiv.editable('getHTML', true, true));
+      sHtmlContent = sHtmlContent.concat($froalaView[0].outerHTML);
     } else if ($container.hasClass('right-container-dropped-image-container')) {
       sHtmlContent = sHtmlContent.concat($container[0].outerHTML);
     }
@@ -193,9 +205,84 @@ function getContentHTML () {
   return sHtmlContent;
 }
 
+function getContentPanelHTML () {
+
+  return $('#rightContainer').html();
+}
+
 function openHtmlInNewWindow (sHtml) {
   var $style = $(document.head).find('style').clone();
   var oWindow = window.open();
   $(oWindow.document.head).append($style);
   $(oWindow.document.body).html(sHtml);
+}
+
+function saveContentButtonClicked (oEvent) {
+  alertify.prompt("Save Content Dialog",
+                  "Enter name for the content.",
+                  "Type here",
+                  saveContentDialogCallback,
+                  {}
+  );
+}
+
+function saveContentDialogCallback (oEvent, sValue) {
+  var oContentData = {};
+  oContentData.name = sValue.trim();
+  oContentData.html = getContentHTML();
+
+  applicationData.contentData[oContentData.name] = oContentData;
+  applicationData.contentNameList.push(oContentData.name);
+
+  addContentsToListInLeftPanel(oContentData.name);
+}
+
+function addContentsToListInLeftPanel (sContentName) {
+  var $contentListConttainer = $('#leftPanel #controlsContainer');
+
+  if (sContentName) {
+    var $contentItem = getContentItemDivForLeftPanel(sContentName);
+    $contentListConttainer.append($contentItem);
+  } else {
+    var aContentNames = applicationData.contentNameList;
+
+    for (var iIndex = 0; iIndex < aContentNames.length; iIndex++) {
+      var sContentName = aContentNames[iIndex];
+      var $contentItem = getContentItemDivForLeftPanel(sContentName);
+      $contentListConttainer.append($contentItem);
+    }
+  }
+
+}
+
+function getContentItemDivForLeftPanel (sContentName) {
+  var sContentItemDivId = sContentName.trim().replace(/\s/g, '_');
+  var $contentItem = $('<div id="' + sContentItemDivId + ' " class="control innerBorder" title="' + sContentName +
+                       '" data-name="' + sContentName + '">' + sContentName + '</div>');
+
+  return $contentItem;
+}
+
+function loadContentInRightPanel ($contentHolderDiv) {
+  var $aContents = $contentHolderDiv.children();
+  var $rightPanel = $('#rightContainer');
+  if ($rightPanel.children().length > 0) {
+    appendSeperatorDiv($rightPanel);
+  }
+
+  for (var iIndex = 0; iIndex < $aContents.length; iIndex++) {
+    var $container = $aContents.eq(iIndex);
+    if ($container.hasClass('froala-view')) {
+      var $textEditorCOntent = $container.html();
+      var $textEditor = getTextEditorDiv($textEditorCOntent);
+      $rightPanel.append($textEditor);
+    } else {
+      $rightPanel.append($container);
+    }
+
+    if (iIndex < $aContents.length - 1) {
+      appendSeperatorDiv($rightPanel);
+    }
+  }
+
 }

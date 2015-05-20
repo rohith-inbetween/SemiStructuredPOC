@@ -6,10 +6,12 @@
     <link rel="stylesheet" href="../css/froala/froala_content.css">
     <link rel="stylesheet" href="../css/froala/froala_editor.css">
     <link rel="stylesheet" href="../css/froala/froala_style.css">
-    <link rel="stylesheet" href="../css/font-awesome.css">
+    <link rel="stylesheet" href="../css/froala/font-awesome.css">
     <link rel="stylesheet" href="../css/jquery-ui.css">
     <link rel="stylesheet" href="../css/jquery-ui.structure.css">
     <link rel="stylesheet" href="../css/jquery-ui.theme.css">
+    <link rel="stylesheet" href="../css/alertify/alertify.css">
+    <link rel="stylesheet" href="../css/alertify/themes/default.css">
     <link rel="stylesheet" href="../css/style.css">
 
     <script src="../scripts/alienscripts/jquery-2.1.4.js"></script>
@@ -22,9 +24,11 @@
     <script src="../scripts/alienscripts/froala/plugins/video.min.js"></script>
     <script src="../scripts/alienscripts/froala/plugins/media_manager.min.js"></script>
     <script src="../scripts/alienscripts/contextmenu/jquery.ui-contextmenu.js"></script>
+    <script src="../scripts/alienscripts/alertify/alertify.js"></script>
     <script src="../scripts/inhousescripts/structure.js"></script>
     <script src="../scripts/inhousescripts/eventHandler.js"></script>
     <script src="../scripts/inhousescripts/eventListner.js"></script>
+    <script src="../scripts/inhousescripts/localStorageHandler.js"></script>
 
     <style>
         /*Content Css*/
@@ -216,16 +220,17 @@
     <div id="container">
         <div id="topPanel" class="panel innerBorder">
             <div id="topContainer" class="panelContainer">
-                <div id="exportHTML">Export To HTML</div>
+                <div id="exportHTML" class="topPanelButton">Export To HTML</div>
+                <div id="saveContent" class="topPanelButton">Save Content</div>
             </div>
         </div>
         <div id="leftPanel" class="panel innerBorder">
             <div id="leftContainer" class="panelContainer">
                 <div id="controlsContainer">
-                    <div id="richTextControl" class="control innerBorder">
+                    <div id="richTextControl" class="control innerBorder" title="Rich Text Editor">
                         Rich Text Editor
                     </div>
-                    <div id="imageControl" class="control innerBorder">
+                    <div id="imageControl" class="control innerBorder" title="Image">
                         Image
                     </div>
                 </div>
