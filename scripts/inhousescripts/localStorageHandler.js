@@ -1,4 +1,8 @@
 var oApplicationData = {};
+var aDefaultContentItem = {
+  "richTextControl": {id: "richTextControl", name: "Rich Text Editor"},
+  "imageControl": {id: "imageControl", name: "Image"}
+};
 
 if (localStorage.semiStructuredContentData) {
   oApplicationData = JSON.parse(localStorage.semiStructuredContentData);
@@ -7,12 +11,12 @@ if (localStorage.semiStructuredContentData) {
 }
 
 applicationData = {
-  contentData: oApplicationData.contentData || {},
+  contentData: oApplicationData.contentData || aDefaultContentItem,
   contentNameList: oApplicationData.contentNameList || []
 };
 function clearStorage () {
   localStorage.clear();
-  applicationData.contentData = {};
+  applicationData.contentData = aDefaultContentItem;
   applicationData.contentNameList = [];
 }
 

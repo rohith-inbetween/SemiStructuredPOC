@@ -1,47 +1,26 @@
 function onDocumentReady () {
-  addContentsToListInLeftPanel();
+  createContentListComponent();
+  addContentToList();
   attachEventsOnElement();
 }
 
 function attachEventsOnElement () {
-  $('.control').draggable({
-                            helper: function () {
-                              var dragHeight = 10;
-                              var dragWidth = 10;
-
-                              return $('<div class="dragHelperDiv on-drag" >');
-                            },
-                            start: function (event, ui) {
-                              enableGrabCursor();
-                            },
-                            stop: function (event, ui) {
-                              disableGrabCursor();
-                            },
-                            cursorAt: {top: 10, left: 10},
-                            revert: 'invalid',
-                            appendTo: 'body'
-                          });
+  makeElementDraggable($('.contentListItem'));
 
   $('#rightContainer').droppable({
                                    drop: function (oEvent, ui) {
                                      var $draggable = ui.draggable;
-
-                                     if ($draggable.attr('id') == "richTextControl") {
-                                       appendSeperatorDiv($(this));
-                                       createTextEditorInContainer($(this));
-
-                                     } else if ($draggable.attr('id') == "imageControl") {
-                                       appendSeperatorDiv($(this));
-                                       createImageInsertInContainer($(this));
-                                     } else {
-                                       var sContentHTML = applicationData.contentData[$draggable.attr('data-name')].html;
-                                       var $contentHolderDiv = $('<div></div>');
-                                       $contentHolderDiv.html(sContentHTML);
-                                       loadContentInRightPanel($contentHolderDiv);
+                                     var $droppable = $(this);
+                                     //$draggable.trigger('selected');
+                                     var bDataAdded = displayDataForContentElement($draggable, $droppable);
+                                     if (bDataAdded) {
+                                       var sCurrentlySelectedContentListItemId = oCurrentlySelectedContent.id;
+                                       var $selectedContentListItem = $('.contentListItem[data-id="' + sCurrentlySelectedContentListItemId + '"]')
+                                       markContentAsDirty($selectedContentListItem);
                                      }
-                                     $(this).animate({scrollTop: $(this)[0].scrollHeight}, 500);
+                                     $droppable.animate({scrollTop: $droppable[0].scrollHeight}, 500);
                                    },
-                                   accept: ".control"
+                                   accept: ".contentListItem"
                                  });
 
   $("#rightContainer").contextmenu({
@@ -78,9 +57,10 @@ function attachEventsOnElement () {
                                    });
 
   $('#exportHTML').on('click', exportToHtmlButtonClicked);
-  $('#saveContent').on('click', saveContentButtonClicked);
+  $('#createNewContent').on('click', createContentButtonClicked);
+  $('#saveContent').on('click', saveContent);
   $('body').on('click', '.insert-image-button', insertImageButtonClicked);
-
+  $('body').on('click', '.contentListItem', null, contentListItemClicked);
   $('body').on('change', '.fileUpload', function (oEvent) {
     $(oEvent.currentTarget).siblings('.insert-image-button,.insert-image-label').remove();
     $imageDiv = $(oEvent.currentTarget).siblings('.imageDiv').show();
@@ -198,16 +178,13 @@ function getContentHTML () {
       $froalaView.html($textEditorDiv.editable('getHTML', true, true));
       sHtmlContent = sHtmlContent.concat($froalaView[0].outerHTML);
     } else if ($container.hasClass('right-container-dropped-image-container')) {
-      sHtmlContent = sHtmlContent.concat($container[0].outerHTML);
+      if ($container.find('img').css('display') != "none") {
+        sHtmlContent = sHtmlContent.concat($container[0].outerHTML);
+      }
     }
   }
 
   return sHtmlContent;
-}
-
-function getContentPanelHTML () {
-
-  return $('#rightContainer').html();
 }
 
 function openHtmlInNewWindow (sHtml) {
@@ -217,50 +194,34 @@ function openHtmlInNewWindow (sHtml) {
   $(oWindow.document.body).html(sHtml);
 }
 
-function saveContentButtonClicked (oEvent) {
-  alertify.prompt("Save Content Dialog",
+function createContentButtonClicked (oEvent) {
+  alertify.prompt("Add New Content Dialog",
                   "Enter name for the content.",
                   "Type here",
-                  saveContentDialogCallback,
+                  createContentDialogCallback,
                   {}
   );
 }
 
-function saveContentDialogCallback (oEvent, sValue) {
+function createContentDialogCallback (oEvent, sValue) {
   var oContentData = {};
   oContentData.name = sValue.trim();
-  oContentData.html = getContentHTML();
+  oContentData.id = sValue.trim().replace(/\s/g, '_');
+  oContentData.html = '';
 
-  applicationData.contentData[oContentData.name] = oContentData;
+  applicationData.contentData[oContentData.id] = oContentData;
   applicationData.contentNameList.push(oContentData.name);
 
-  addContentsToListInLeftPanel(oContentData.name);
+  addContentToList(oContentData);
 }
 
-function addContentsToListInLeftPanel (sContentName) {
-  var $contentListConttainer = $('#leftPanel #controlsContainer');
-
-  if (sContentName) {
-    var $contentItem = getContentItemDivForLeftPanel(sContentName);
-    $contentListConttainer.append($contentItem);
-  } else {
-    var aContentNames = applicationData.contentNameList;
-
-    for (var iIndex = 0; iIndex < aContentNames.length; iIndex++) {
-      var sContentName = aContentNames[iIndex];
-      var $contentItem = getContentItemDivForLeftPanel(sContentName);
-      $contentListConttainer.append($contentItem);
-    }
-  }
-
-}
-
-function getContentItemDivForLeftPanel (sContentName) {
-  var sContentItemDivId = sContentName.trim().replace(/\s/g, '_');
-  var $contentItem = $('<div id="' + sContentItemDivId + ' " class="control innerBorder" title="' + sContentName +
-                       '" data-name="' + sContentName + '">' + sContentName + '</div>');
-
-  return $contentItem;
+function saveContent () {
+  oCurrentlySelectedContent.html = getContentHTML();
+  oCurrentlySelectedContent.isDirty = false;
+  var sCurrentlySelectedContentListItemId = oCurrentlySelectedContent.id;
+  var $selectedContentListItem = $('.contentListItem[data-id="' + sCurrentlySelectedContentListItemId + '"]')
+  removeDirtyMarkFromContent($selectedContentListItem);
+  alertify.success("Content Saved Successfully");
 }
 
 function loadContentInRightPanel ($contentHolderDiv) {
@@ -285,4 +246,129 @@ function loadContentInRightPanel ($contentHolderDiv) {
     }
   }
 
+}
+
+function createContentListComponent () {
+  var $contentsList = $('#contentList').next().find('.lbjs-list');
+  if (!$contentsList.length) {
+    $('#contentList').listbox({
+                               'searchbar': true,
+                               'searchRegex' : ""
+                             });
+  }
+}
+
+function addContentToList (oContent) {
+  var $entitiesList = $('#contentList').next().find('.lbjs-list');
+  var $entityListItem = null;
+  if (oContent) {
+    $entityListItem = createNewContentItem(oContent);
+
+    $entitiesList.append($entityListItem);
+  } else {
+    var oContentData = applicationData.contentData;
+    for (var sKey in oContentData) {
+      $entityListItem = createNewContentItem(oContentData[sKey]);
+      $entitiesList.append($entityListItem);
+    }
+  }
+  $entityListItem.click();
+}
+
+function createNewContentItem (oContent) {
+  var $contentListItem = $('<div>');
+  $contentListItem.addClass('lbjs-item contentListItem');
+  var $contentLabel = $('<div class = "contentListItemLabel" title="' + oContent.name + '">' + oContent.name + '</div>')
+  $contentListItem.append($contentLabel);
+  //var $entityLockIcon = $('<span class="contentLockIcon fa fa-lock"></span>');
+  /*if (oContent.lockInfo) {
+    if (sSessionId != oContent.lockInfo.sessionId || sTabSessionId != oContent.lockInfo.tabSessionId) {
+      $entityLockIcon.addClass('show');
+    }
+  }*/
+  //$contentListItem.append($entityLockIcon);
+  $contentLabel.after('<span class="unsavedContent" title="Unsaved Entity" style="display: none">*</span>');
+  $contentListItem.attr('data-id', oContent.id);
+  $contentListItem.attr('data-name', oContent.name);
+  $contentListItem.attr('title', oContent.name);
+  return $contentListItem;
+}
+
+function markContentAsDirty ($element) {
+  oCurrentlySelectedContent.isDirty = true;
+  $element.find('.unsavedContent').show();
+}
+
+function removeDirtyMarkFromContent ($element) {
+  oCurrentlySelectedContent.isDirty = false;
+  $element.find('.unsavedContent').hide();
+}
+
+function contentListItemClicked (oEvent) {
+  $currentlyClickedContentItem = $(oEvent.currentTarget);
+  if ((oCurrentlySelectedContent && !oCurrentlySelectedContent.isDirty) || !oCurrentlySelectedContent) {
+    var $contentListItem = $(oEvent.currentTarget);
+    $('#contentLabel').text($contentListItem.attr('data-name'));
+    oCurrentlySelectedContent = applicationData.contentData[$contentListItem.attr('data-id')];
+    $currentlySelectedContentItem = $contentListItem;
+    $('.contentListItem').removeAttr('selected');
+    $contentListItem.attr('selected', 'selected');
+    makeElementDraggable($contentListItem);
+    var $container = $('#rightContainer');
+    $container.empty();
+    displayDataForContentElement($contentListItem, $container);
+  } else {
+    alertify.confirm("Unsaved changes!",
+                     "There are unsaved changes in the current content this will be discarded, do you want to proceed?",
+                     discardChangesAndOPenNewContent,
+                     {});
+  }
+}
+
+function displayDataForContentElement ($element, $container) {
+  var bDataAdded = false;
+  if ($element.attr('data-id') == "richTextControl") {
+    appendSeperatorDiv($container);
+    createTextEditorInContainer($container);
+    bDataAdded = true;
+  } else if ($element.attr('data-id') == "imageControl") {
+    appendSeperatorDiv($container);
+    createImageInsertInContainer($container);
+    bDataAdded = true;
+  } else {
+    var sContentHTML = applicationData.contentData[$element.attr('data-name')].html;
+    var $contentHolderDiv = $('<div></div>');
+    $contentHolderDiv.html(sContentHTML);
+    if (sContentHTML) {
+      loadContentInRightPanel($contentHolderDiv);
+      bDataAdded = true;
+    }
+  }
+
+  return bDataAdded;
+}
+
+function makeElementDraggable ($element) {
+  $element.draggable({
+                              helper: function () {
+                                var dragHeight = 10;
+                                var dragWidth = 10;
+
+                                return $('<div class="dragHelperDiv on-drag" >');
+                              },
+                              start: function (event, ui) {
+                                enableGrabCursor();
+                              },
+                              stop: function (event, ui) {
+                                disableGrabCursor();
+                              },
+                              cursorAt: {top: 10, left: 10},
+                              revert: 'invalid',
+                              appendTo: 'body'
+                            });
+}
+
+function discardChangesAndOPenNewContent () {
+  removeDirtyMarkFromContent($currentlySelectedContentItem);
+  $currentlyClickedContentItem.click();
 }
