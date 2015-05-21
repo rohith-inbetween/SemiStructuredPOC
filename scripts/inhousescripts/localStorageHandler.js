@@ -1,7 +1,7 @@
 var oApplicationData = {};
 var aDefaultContentItem = {
-  "richTextControl": {id: "richTextControl", name: "Rich Text Editor"},
-  "imageControl": {id: "imageControl", name: "Image"}
+  "richTextControl": {id: "richTextControl", name: "Rich Text Editor", class:"basic-content-element"},
+  "imageControl": {id: "imageControl", name: "Image", class:"basic-content-element"}
 };
 
 if (localStorage.semiStructuredContentData) {

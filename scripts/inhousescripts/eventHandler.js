@@ -281,8 +281,13 @@ function addContentToList (oContent) {
 
 function createNewContentItem (oContent) {
   var $contentListItem = $('<div>');
-  $contentListItem.addClass('lbjs-item contentListItem');
-  var $contentLabel = $('<div class = "contentListItemLabel" title="' + oContent.name + '">' + oContent.name + '</div>')
+  var classesToAdd = '';
+  if(oContent.class){
+    classesToAdd += " " + oContent.class;
+  }
+  $contentListItem.addClass('lbjs-item contentListItem ' + classesToAdd);
+  var classesToAdd = "contentListItemLabel";
+  var $contentLabel = $('<div class = "' + classesToAdd + '" title="' + oContent.name + '">' + oContent.name + '</div>')
   $contentListItem.append($contentLabel);
   //var $entityLockIcon = $('<span class="contentLockIcon fa fa-lock"></span>');
   /*if (oContent.lockInfo) {
@@ -310,7 +315,9 @@ function removeDirtyMarkFromContent ($element) {
 
 function contentListItemClicked (oEvent) {
   $currentlyClickedContentItem = $(oEvent.currentTarget);
-  if ((oCurrentlySelectedContent && !oCurrentlySelectedContent.isDirty) || !oCurrentlySelectedContent) {
+  if($currentlyClickedContentItem.hasClass('basic-content-element')){
+    alertify.warning('Cannot edit the basic components');
+  } else if ((oCurrentlySelectedContent && !oCurrentlySelectedContent.isDirty) || !oCurrentlySelectedContent) {
     var $contentListItem = $(oEvent.currentTarget);
     $('#contentLabel').text($contentListItem.attr('data-name'));
     oCurrentlySelectedContent = applicationData.contentData[$contentListItem.attr('data-id')];
@@ -321,7 +328,8 @@ function contentListItemClicked (oEvent) {
     var $container = $('#rightContainer');
     $container.empty();
     displayDataForContentElement($contentListItem, $container);
-  } else {
+  }
+  else {
     alertify.confirm("Unsaved changes!",
                      "There are unsaved changes in the current content this will be discarded, do you want to proceed?",
                      discardChangesAndOPenNewContent,
