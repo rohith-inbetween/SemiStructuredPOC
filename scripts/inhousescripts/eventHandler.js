@@ -171,18 +171,18 @@ function exportToHtmlButtonClicked (oEvent) {
   openHtmlInNewWindow(sContentHTML);
 }
 
-function getContentHTML (bGetEmptyImageContainer) {
+function getContentHTML (bGetEmptyContainers) {
   var sHtmlContent = '';
   var $containerElements = $('#rightContainer').children();
   for (var iContainerIndex = 0; iContainerIndex < $containerElements.size(); iContainerIndex++) {
     var $container = $containerElements.eq(iContainerIndex);
     if ($container.hasClass('right-container-dropped-text-field')) {
       var $textEditorDiv = $container.children('.text-editor').eq(0);
-      var $froalaView = $textEditorDiv.find('.froala-view').clone();
+      var $froalaView = $('<div class="froala-view">');
       $froalaView.html($textEditorDiv.editable('getHTML', true, true));
       sHtmlContent = sHtmlContent.concat($froalaView[0].outerHTML);
     } else if ($container.hasClass('right-container-dropped-image-container')) {
-      if (bGetEmptyImageContainer || $container.find('img').css('display') != "none") {
+      if (bGetEmptyContainers || $container.find('img').css('display') != "none") {
         sHtmlContent = sHtmlContent.concat($container[0].outerHTML);
       }
     }
@@ -238,8 +238,8 @@ function loadContentInRightPanel ($contentHolderDiv) {
   for (var iIndex = 0; iIndex < $aContents.length; iIndex++) {
     var $container = $aContents.eq(iIndex);
     if ($container.hasClass('froala-view')) {
-      var $textEditorCOntent = $container.html();
-      var $textEditor = getTextEditorDiv($textEditorCOntent);
+      var $textEditorContent = $container.html();
+      var $textEditor = getTextEditorDiv($textEditorContent);
       $rightPanel.append($textEditor);
     } else {
       $rightPanel.append($container);
