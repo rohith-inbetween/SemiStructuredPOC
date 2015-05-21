@@ -229,6 +229,7 @@ function createContentDialogCallback (oEvent, sValue) {
   oContentData.name = sValue.trim();
   oContentData.id = sValue.trim().replace(/\s/g, '_');
   oContentData.html = '';
+  oContentData.isDirty = false;
 
   applicationData.contentData[oContentData.id] = oContentData;
   applicationData.contentNameList.push(oContentData.name);
@@ -285,16 +286,18 @@ function addContentToList (oContent) {
   var $entityListItem = null;
   if (oContent) {
     $entityListItem = createNewContentItem(oContent);
-
     $entitiesList.append($entityListItem);
+    $entityListItem.click();
   } else {
     var oContentData = applicationData.contentData;
     for (var sKey in oContentData) {
+      if (oContentData[sKey].hasOwnProperty('isDirty')) {
+        oContentData[sKey].isDirty = false;
+      }
       $entityListItem = createNewContentItem(oContentData[sKey]);
       $entitiesList.append($entityListItem);
     }
   }
-  $entityListItem.click();
 }
 
 function createNewContentItem (oContent) {
@@ -304,8 +307,7 @@ function createNewContentItem (oContent) {
     classesToAdd += " " + oContent.class;
   }
   $contentListItem.addClass('lbjs-item contentListItem ' + classesToAdd);
-  var classesToAdd = "contentListItemLabel";
-  var $contentLabel = $('<div class = "' + classesToAdd + '" title="' + oContent.name + '">' + oContent.name + '</div>')
+  var $contentLabel = $('<div class = "contentListItemLabel" title="' + oContent.name + '">' + oContent.name + '</div>')
   $contentListItem.append($contentLabel);
   //var $entityLockIcon = $('<span class="contentLockIcon fa fa-lock"></span>');
   /*if (oContent.lockInfo) {
@@ -387,6 +389,10 @@ function makeElementDraggable ($element) {
                               start: function (event, ui) {
                                 if (!oCurrentlySelectedContent) {
                                   alertify.warning("No Content selected to edit, select any content first.");
+
+                                  return false;
+                                } else if (oCurrentlySelectedContent.id == $(this).attr('data-id')) {
+                                  alertify.warning("Content cannot be added inside itself.");
 
                                   return false;
                                 }
