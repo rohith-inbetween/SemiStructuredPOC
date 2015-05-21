@@ -167,7 +167,7 @@ function exportToHtmlButtonClicked (oEvent) {
   openHtmlInNewWindow(sContentHTML);
 }
 
-function getContentHTML () {
+function getContentHTML (bGetEmptyImageContainer) {
   var sHtmlContent = '';
   var $containerElements = $('#rightContainer').children();
   for (var iContainerIndex = 0; iContainerIndex < $containerElements.size(); iContainerIndex++) {
@@ -178,7 +178,7 @@ function getContentHTML () {
       $froalaView.html($textEditorDiv.editable('getHTML', true, true));
       sHtmlContent = sHtmlContent.concat($froalaView[0].outerHTML);
     } else if ($container.hasClass('right-container-dropped-image-container')) {
-      if ($container.find('img').css('display') != "none") {
+      if (bGetEmptyImageContainer || $container.find('img').css('display') != "none") {
         sHtmlContent = sHtmlContent.concat($container[0].outerHTML);
       }
     }
@@ -216,7 +216,7 @@ function createContentDialogCallback (oEvent, sValue) {
 }
 
 function saveContent () {
-  oCurrentlySelectedContent.html = getContentHTML();
+  oCurrentlySelectedContent.html = getContentHTML(true);
   oCurrentlySelectedContent.isDirty = false;
   var sCurrentlySelectedContentListItemId = oCurrentlySelectedContent.id;
   var $selectedContentListItem = $('.contentListItem[data-id="' + sCurrentlySelectedContentListItemId + '"]')
