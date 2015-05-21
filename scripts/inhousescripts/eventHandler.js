@@ -259,10 +259,11 @@ function loadContentInRightPanel ($contentHolderDiv) {
 function createContentListComponent () {
   var $contentsList = $('#contentList').next().find('.lbjs-list');
   if (!$contentsList.length) {
-    $('#contentList').listbox({
+    var $listbox = $('#contentList').listbox({
                                'searchbar': true,
                                'searchRegex' : ""
                              });
+    $('#contentList').next().find('.lbjs-list').css('height', '');
   }
 }
 

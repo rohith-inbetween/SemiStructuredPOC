@@ -1,13 +1,17 @@
 
-.innerBorder {
-    box-sizing:border-box;
-    -moz-box-sizing:border-box;
-    -webkit-box-sizing:border-box;
+html {
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    height: 100%;
+    width: 100%;
 }
 
 div#wrapperDiv {
     margin: 0 auto;
-    height: 627px;
+    height: 100%;
     width: 100%;
     background-color: #E4E2E2;
 }
@@ -19,17 +23,17 @@ div#container {
 }
 
 div#leftPanel {
-    width: 10%;
+    width: 15%;
 }
 
 div#rightPanel {
-    width: 90%;
+    width: 85%;
 }
 
 div.ui-panel {
     position: relative;
     float: left;
-    height: 587px;
+    height: calc(100% - 40px);
     border: 1px solid #000000;
     padding: 5px;
 }
@@ -145,7 +149,6 @@ div.topPanelButton:hover {
 }
 
 #Content-list-header {
-    margin-top: 5px;
     background: #78b1ed;
     background: -moz-linear-gradient(top, #78b1ed 0%, #417bb5 100%);
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #78b1ed), color-stop(100%, #417bb5));
@@ -196,7 +199,7 @@ div.topPanelButton:hover {
     word-wrap: break-word;
     overflow: hidden;
     white-space: nowrap;
-    max-width: 105px;
+    max-width: 150px;
     display: inline-block;
     font-size: small;
 }
@@ -214,6 +217,7 @@ div.topPanelButton:hover {
 
 .lbjs {
     width: auto;
+    height: calc(100% - 36px) !important;
 }
 
 .lbjs .lbjs-searchbar-wrapper {
@@ -222,6 +226,10 @@ div.topPanelButton:hover {
 
 .lbjs .lbjs-searchbar {
     width: 90%;
+}
+
+.lbjs .lbjs-list {
+    max-height: calc(100% - 38px) !important;
 }
 
 div#contentLabel {
