@@ -84,44 +84,6 @@ div#controlsContainer {
     cursor: pointer;
 }
 
-.right-container-dropped-image-container.fitContentToFrame {
-    height: 100px;
-    width: 100%;
-    background-color: #ffffff;
-    padding: 10px 0 10px 0;
-    text-align: center;
-}
-
-.right-container-dropped-image-container.fitFrameToContent {
-    min-height: 100px;
-    height: auto;
-    width: 100%;
-    background-color: #ffffff;
-    padding: 10px 0 10px 0;
-    text-align: center;
-}
-
-/*img.imageDiv {
-    margin: 0 auto;
-    height: 100px;
-    width: 100px;
-}*/
-
-div.imageContainer {
-    height: 100%;
-    margin: auto;
-}
-
-.right-container-dropped-image-container.fitFrameToContent img.imageDiv.fitFrameToContent {
-    max-width: 100%;
-}
-
-.right-container-dropped-image-container.fitContentToFrame img.imageDiv.fitContentToFrame {
-    height: 100%;
-    width: auto;
-    max-width: 100%;
-}
-
 .right-container-field-seperator {
     margin: 10px auto 10px auto;
     height: 2px;

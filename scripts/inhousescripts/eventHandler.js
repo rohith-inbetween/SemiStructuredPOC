@@ -21,7 +21,7 @@ function attachEventsOnElement () {
                                        }
                                        $droppable.animate({scrollTop: $droppable[0].scrollHeight}, 500);
                                      } else {
-                                       alertify.warning("No Content selected to drag, select any content first.");
+                                       alertify.warning("No Content selected to edit, select any content first.");
                                      }
                                    },
                                    accept: ".contentListItem"
@@ -362,7 +362,7 @@ function makeElementDraggable ($element) {
                               },
                               start: function (event, ui) {
                                 if (!oCurrentlySelectedContent) {
-                                  alertify.warning("No Content selected to drag, select any content first.");
+                                  alertify.warning("No Content selected to edit, select any content first.");
 
                                   return false;
                                 }
