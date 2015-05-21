@@ -199,6 +199,7 @@ function getContentHTML (bGetEmptyContainers) {
     if ($container.hasClass('right-container-dropped-text-field')) {
       var $textEditorDiv = $container.children('.text-editor').eq(0);
       var sSectionTitle = $textEditorDiv.data('section-title');
+      sSectionTitle = sSectionTitle ? sSectionTitle : "";
       var $froalaView = $('<div class="froala-view" data-section-title="' + sSectionTitle + '">');
       $froalaView.html($textEditorDiv.editable('getHTML', true, true));
       sHtmlContent = sHtmlContent.concat($froalaView[0].outerHTML);
