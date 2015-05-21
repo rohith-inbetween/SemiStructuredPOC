@@ -10,6 +10,10 @@ function attachEventsOnElement () {
   $('#rightContainer').droppable({
                                    drop: function (oEvent, ui) {
                                      if (oCurrentlySelectedContent) {
+                                       if($currentlySelectedContentItem.hasClass('basic-content-element')){
+                                         alertify.warning("Cannot edit basic element");
+                                         return false;
+                                       }
                                        var $draggable = ui.draggable;
                                        var $droppable = $(this);
                                        //$draggable.trigger('selected');
