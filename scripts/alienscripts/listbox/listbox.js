@@ -137,12 +137,13 @@
                     $(this).css('display', 'block');
                 });
             }
-
+          //@Rajesh: commented the below hack, this was creating issue while search. this was causing random selection of listitem
+          //(The below hack is the part of the library - been written by the developer of this component itself.)
             // @hack: call special handler which is used only for SingleSelectListbox
             //        to prevent situation when none of items are selected
-            if (self.onFilterChange) {
+            /*if (self.onFilterChange) {
                 self.onFilterChange();
-            }
+            }*/
         });
 
         // save for using in _resizeListToListbox()
