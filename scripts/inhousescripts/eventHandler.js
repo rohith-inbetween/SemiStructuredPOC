@@ -47,13 +47,13 @@ function attachEventsOnElement () {
                                      ],
                                      select: function (event, ui) {
                                        var $contextMenuContainer = ui.target;
-                                       var $container = $contextMenuContainer.parents('.right-container-dropped-image-container');
+                                       var $container = $contextMenuContainer.parents('.imageContainerFrame');
                                        var sCssClass = ui.cmd;
                                        applyImageScalingCss($container, sCssClass);
                                      },
                                      beforeOpen: function (event, ui) {
                                        var $contextMenuContainer = ui.target;
-                                       var $container = $contextMenuContainer.parents('.right-container-dropped-image-container');
+                                       var $container = $contextMenuContainer.parents('.imageContainerFrame');
                                        if ($container.hasClass('fitContentToFrame')) {
                                          $('#rightContainer').contextmenu("showEntry", "fitContentToFrame", false);
                                          $('#rightContainer').contextmenu("showEntry", "fitFrameToContent", true);
@@ -84,18 +84,22 @@ function createTextEditorInContainer ($element) {
 
 }
 
-function getTextEditorDiv (sHtml) {
+function getTextEditorDiv ($savedContainer) {
   var $newEditorContainer = $('<div class="right-container-dropped-text-field control-component">');
-  var $editor = $('<div class="text-editor">');
+  var $editor = $('<div class="text-editor contentContainer">');
+
   $newEditorContainer.append($editor);
   $editor.editable({
                      inlineMode: false,
                      allowStyle: true
                    });
 
-  if (sHtml) {
-    $editor.editable('setHTML', sHtml);
+  var sSectionName;
+  if ($savedContainer) {
+    sSectionName = $savedContainer.data('section-title');
+    $editor.editable('setHTML', $savedContainer.html());
   }
+  $newEditorContainer.prepend(getSectionTitleBox(sSectionName));
 
   return $newEditorContainer;
 }
@@ -106,18 +110,26 @@ function createImageInsertInContainer ($element) {
 
 }
 
-function getImageInsert () {
-  var $newImageContainer = $('<div class="right-container-dropped-image-container control-component fitContentToFrame">');
-  //$newImageContainer.css(oFitContentToFrameCss);
-  var $imageContainer = $('<div class="imageContainer"></div>');
-  var $addImageButton = $('<input class="fileUpload" type="file" accept="image/*" style="display: none"/><div class="insert-image-button" title="Add Image"/><div class="insert-image-label">Click to add image</div>');
-  var $imageDiv = $('<img src="" class="imageDiv hasmenu fitContentToFrame" style="display: none"/>');
-  //$imageDiv.css(oImageDivCssForFitToFrame);
-  $imageContainer.append($addImageButton);
-  $imageContainer.append($imageDiv);
-  $newImageContainer.append($imageContainer);
+function getImageInsert ($imageData) {
+  var $imageFrameComponent = $('<div class="right-container-dropped-image-container control-component">');
+  var sSectionName;
+  if($imageData){
+    sSectionName = $imageData.data('section-title');
+    $imageFrameComponent.append($imageData);
+  } else {
+    //$imageFrameWrapper.css(oFitContentToFrameCss);
+    var $imageContainer = $('<div class="imageContainer"></div>');
+    var $addImageButton = $('<input class="fileUpload" type="file" accept="image/*" style="display: none"/><div class="insert-image-button" title="Add Image"/><div class="insert-image-label">Click to add image</div>');
+    var $imageDiv = $('<img src="" class="imageDiv hasmenu fitContentToFrame" style="display: none"/>');
+    //$imageDiv.css(oImageDivCssForFitToFrame);
+    $imageContainer.append($addImageButton);
+    $imageContainer.append($imageDiv);
+    $imageFrameComponent.append($imageContainer);
+    $imageContainer.wrap('<div class="imageContainerFrame contentContainer fitContentToFrame"></div>');
+  }
+  $imageFrameComponent.prepend(getSectionTitleBox(sSectionName));
 
-  return $newImageContainer;
+  return $imageFrameComponent;
 }
 
 function insertImageButtonClicked (oEvent) {
@@ -182,12 +194,13 @@ function getContentHTML (bGetEmptyContainers) {
     var $container = $containerElements.eq(iContainerIndex);
     if ($container.hasClass('right-container-dropped-text-field')) {
       var $textEditorDiv = $container.children('.text-editor').eq(0);
-      var $froalaView = $('<div class="froala-view">');
+      var sSectionTitle = $textEditorDiv.data('section-title');
+      var $froalaView = $('<div class="froala-view" data-section-title="' + sSectionTitle + '">');
       $froalaView.html($textEditorDiv.editable('getHTML', true, true));
       sHtmlContent = sHtmlContent.concat($froalaView[0].outerHTML);
     } else if ($container.hasClass('right-container-dropped-image-container')) {
       if (bGetEmptyContainers || $container.find('img').css('display') != "none") {
-        sHtmlContent = sHtmlContent.concat($container[0].outerHTML);
+        sHtmlContent = sHtmlContent.concat($container.children('.contentContainer')[0].outerHTML);
       }
     }
   }
@@ -242,11 +255,11 @@ function loadContentInRightPanel ($contentHolderDiv) {
   for (var iIndex = 0; iIndex < $aContents.length; iIndex++) {
     var $container = $aContents.eq(iIndex);
     if ($container.hasClass('froala-view')) {
-      var $textEditorContent = $container.html();
-      var $textEditor = getTextEditorDiv($textEditorContent);
+      var $textEditor = getTextEditorDiv($container);
       $rightPanel.append($textEditor);
     } else {
-      $rightPanel.append($container);
+      var $imageContainer = getImageInsert($container);
+      $rightPanel.append($imageContainer);
     }
 
     if (iIndex < $aContents.length - 1) {
@@ -391,4 +404,24 @@ function makeElementDraggable ($element) {
 function discardChangesAndOPenNewContent () {
   removeDirtyMarkFromContent($currentlySelectedContentItem);
   $currentlyClickedContentItem.click();
+}
+
+function getSectionTitleBox(sName){
+  var $titleDiv = $('<div class="section-title">');
+  var $titleInputField = $('<input type="text" class="section-title-text"/>');
+  if(sName){
+    $titleInputField.val(sName);
+  }
+  $titleDiv.append($titleInputField);
+
+  $titleInputField.on('change',onSectionTitleChange);
+
+  return $titleDiv;
+}
+
+function onSectionTitleChange(oEvent){
+
+  var sNewValue = $(oEvent.currentTarget).val();
+  var $contentContainer = $(oEvent.currentTarget).parents('.section-title').eq(0).siblings('.contentContainer');
+  $contentContainer.attr('data-section-title',sNewValue);
 }
