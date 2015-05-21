@@ -301,7 +301,7 @@ function createNewContentItem (oContent) {
     }
   }*/
   //$contentListItem.append($entityLockIcon);
-  $contentLabel.after('<span class="unsavedContent" title="Unsaved Entity" style="display: none">*</span>');
+  $contentLabel.after('<span class="unsavedContent" title="Unsaved Content" style="display: none">*</span>');
   $contentListItem.attr('data-id', oContent.id);
   $contentListItem.attr('data-name', oContent.name);
   $contentListItem.attr('title', oContent.name);
@@ -351,7 +351,7 @@ function displayDataForContentElement ($element, $container) {
     createImageInsertInContainer($container);
     bDataAdded = true;
   } else {
-    var sContentHTML = applicationData.contentData[$element.attr('data-name')].html;
+    var sContentHTML = applicationData.contentData[$element.attr('data-id')].html;
     var $contentHolderDiv = $('<div></div>');
     $contentHolderDiv.html(sContentHTML);
     if (sContentHTML) {
