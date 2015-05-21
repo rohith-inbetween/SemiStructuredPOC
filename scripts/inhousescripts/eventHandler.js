@@ -315,9 +315,7 @@ function removeDirtyMarkFromContent ($element) {
 
 function contentListItemClicked (oEvent) {
   $currentlyClickedContentItem = $(oEvent.currentTarget);
-  if($currentlyClickedContentItem.hasClass('basic-content-element')){
-    alertify.warning('Cannot edit the basic components');
-  } else if ((oCurrentlySelectedContent && !oCurrentlySelectedContent.isDirty) || !oCurrentlySelectedContent) {
+  if ((oCurrentlySelectedContent && !oCurrentlySelectedContent.isDirty) || !oCurrentlySelectedContent) {
     var $contentListItem = $(oEvent.currentTarget);
     $('#contentLabel').text($contentListItem.attr('data-name'));
     oCurrentlySelectedContent = applicationData.contentData[$contentListItem.attr('data-id')];
