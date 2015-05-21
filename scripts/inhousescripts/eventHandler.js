@@ -78,14 +78,17 @@ function attachEventsOnElement () {
   });
 }
 
-function createTextEditorInContainer ($element) {
-
-  $element.append(getTextEditorDiv());
-
+function createTextEditorInContainer ($element, oSectionData) {
+  if (!oSectionData) {
+    oSectionData = $.extend({}, true, applicationData.sectionData.richTextControlSection);
+  }
+  oSectionData.id = GUID.random();
+  aModifiedSectionsOfCurrentContent.push(oSectionData);
+  $element.append(getTextEditorDiv(oSectionData));
 }
 
-function getTextEditorDiv ($savedContainer) {
-  var $newEditorContainer = $('<div class="right-container-dropped-text-field control-component">');
+function getTextEditorDiv (oSectionData) {
+  var $newEditorContainer = $('<div data-id="'+ oSectionData.id +'" class="right-container-dropped-text-field control-component">');
   var $editor = $('<div class="text-editor contentContainer">');
 
   $newEditorContainer.append($editor);
@@ -94,39 +97,40 @@ function getTextEditorDiv ($savedContainer) {
                      allowStyle: true
                    });
 
-  var sSectionName;
-  if ($savedContainer) {
-    sSectionName = $savedContainer.data('section-title');
-    $editor.editable('setHTML', $savedContainer.html());
+  $editor.on('editable.contentChanged', contentChangedInEditor);
+
+  if (oSectionData.html.trim()) {
+    $editor.editable('setHTML', oSectionData.html);
   }
+  var sSectionName = oSectionData.name;
   $newEditorContainer.prepend(getSectionTitleBox(sSectionName));
 
   return $newEditorContainer;
 }
 
-function createImageInsertInContainer ($element) {
-
-  $element.append(getImageInsert());
-
+function createImageInsertInContainer ($element, oSectionData) {
+  if (!oSectionData) {
+    oSectionData = $.extend({}, true, applicationData.sectionData.imageControlSection);
+  }
+  oSectionData.id = GUID.random();
+  aModifiedSectionsOfCurrentContent.push(oSectionData);
+  $element.append(getImageInsert(oSectionData));
 }
 
-function getImageInsert ($imageData) {
-  var $imageFrameComponent = $('<div class="right-container-dropped-image-container control-component">');
-  var sSectionName;
-  if($imageData){
-    sSectionName = $imageData.data('section-title');
-    $imageFrameComponent.append($imageData);
-  } else {
-    //$imageFrameWrapper.css(oFitContentToFrameCss);
-    var $imageContainer = $('<div class="imageContainer"></div>');
-    var $addImageButton = $('<input class="fileUpload" type="file" accept="image/*" style="display: none"/><div class="insert-image-button" title="Add Image"/><div class="insert-image-label">Click to add image</div>');
-    var $imageDiv = $('<img src="" class="imageDiv hasmenu fitContentToFrame" style="display: none"/>');
-    //$imageDiv.css(oImageDivCssForFitToFrame);
-    $imageContainer.append($addImageButton);
-    $imageContainer.append($imageDiv);
-    $imageFrameComponent.append($imageContainer);
-    $imageContainer.wrap('<div class="imageContainerFrame contentContainer fitContentToFrame"></div>');
+function getImageInsert (oSectionData) {
+  var $imageFrameComponent = $('<div data-id="'+ oSectionData.id +'" class="right-container-dropped-image-container control-component">');
+  var sSectionName = oSectionData.name;
+  var $imageContainer = $('<div class="imageContainer"></div>');
+  var $addImageOption = $('<div class="addImageOption"><input class="fileUpload" type="file" accept="image/*" style="display: none"/><div class="insert-image-button" title="Add Image"/><div class="insert-image-label">Click to add image</div></div>');
+  var $imageDiv = $('<img src="' + oSectionData.imageByte + '" class="imageDiv hasmenu ' + oSectionData.scalingClass + '" style="display: none"/>');
+  if (oSectionData.imageByte) {
+    $addImageOption.css('display', 'none');
+    $imageDiv.css('display', '');
   }
+  $imageContainer.append($addImageOption);
+  $imageContainer.append($imageDiv);
+  $imageFrameComponent.append($imageContainer);
+  $imageContainer.wrap('<div class="imageContainerFrame contentContainer ' + oSectionData.scalingClass + '"></div>');
   $imageFrameComponent.prepend(getSectionTitleBox(sSectionName));
 
   return $imageFrameComponent;
@@ -208,6 +212,35 @@ function getContentHTML (bGetEmptyContainers) {
   return sHtmlContent;
 }
 
+function computeSectionsData () {
+  oCurrentlySelectedContent.sections = [];
+  for(var iIndex = 0 ; iIndex < aModifiedSectionsOfCurrentContent.length ; iIndex++){
+    var oModifiedSection = aModifiedSectionsOfCurrentContent[iIndex];
+    oCurrentlySelectedContent.sections.push(oModifiedSection.id);
+    var sSectionName;
+    if (oModifiedSection.type == "richTextEditor") {
+      var $sectionContainer = $('#rightContainer').find('[data-id="'+ oModifiedSection.id +'"]');
+      var $textEditorDiv = $sectionContainer.children('.text-editor').eq(0);
+      sSectionName = $sectionContainer.find('.section-title-text').val();
+      var sHtml = $textEditorDiv.editable('getHTML', false, true);
+      oModifiedSection.html = sHtml;
+
+    } else if (oModifiedSection.type == "image") {
+      var $sectionContainer = $('#rightContainer').find('[data-id="'+ oModifiedSection.id +'"]');
+      sSectionName = $sectionContainer.find('.section-title-text').val();
+      var sImageByte = $sectionContainer.find('img').attr('src');
+      var sScalingClass = 'fitContentToFrame';
+      if (sImageByte) {
+         $sectionContainer.find('.imageContainerFrame').hasClass('fitFrameToContent') ?
+             sScalingClass = "fitFrameToContent" : null;
+      }
+      oModifiedSection.imageByte = sImageByte;
+      oModifiedSection.scalingClass = sScalingClass;
+    }
+    oModifiedSection.name = sSectionName;
+  }
+}
+
 function openHtmlInNewWindow (sHtml) {
   var $style = $(document.head).find('style').clone();
   var oWindow = window.open();
@@ -227,47 +260,22 @@ function createContentButtonClicked (oEvent) {
 function createContentDialogCallback (oEvent, sValue) {
   var oContentData = {};
   oContentData.name = sValue.trim();
-  oContentData.id = sValue.trim().replace(/\s/g, '_');
-  oContentData.html = '';
+  oContentData.id = GUID.random();
+  oContentData.sections = [];
   oContentData.isDirty = false;
 
   applicationData.contentData[oContentData.id] = oContentData;
-  applicationData.contentNameList.push(oContentData.name);
 
   addContentToList(oContentData);
 }
 
 function saveContent () {
-  oCurrentlySelectedContent.html = getContentHTML(true);
+  computeSectionsData();
+  saveSectionData();
   oCurrentlySelectedContent.isDirty = false;
-  var sCurrentlySelectedContentListItemId = oCurrentlySelectedContent.id;
-  var $selectedContentListItem = $('.contentListItem[data-id="' + sCurrentlySelectedContentListItemId + '"]')
+  var $selectedContentListItem = $('.contentListItem[data-id="' + oCurrentlySelectedContent.id + '"]');
   removeDirtyMarkFromContent($selectedContentListItem);
   alertify.success("Content Saved Successfully");
-}
-
-function loadContentInRightPanel ($contentHolderDiv) {
-  var $aContents = $contentHolderDiv.children();
-  var $rightPanel = $('#rightContainer');
-  if ($rightPanel.children().length > 0) {
-    appendSeperatorDiv($rightPanel);
-  }
-
-  for (var iIndex = 0; iIndex < $aContents.length; iIndex++) {
-    var $container = $aContents.eq(iIndex);
-    if ($container.hasClass('froala-view')) {
-      var $textEditor = getTextEditorDiv($container);
-      $rightPanel.append($textEditor);
-    } else {
-      var $imageContainer = getImageInsert($container);
-      $rightPanel.append($imageContainer);
-    }
-
-    if (iIndex < $aContents.length - 1) {
-      appendSeperatorDiv($rightPanel);
-    }
-  }
-
 }
 
 function createContentListComponent () {
@@ -307,15 +315,10 @@ function createNewContentItem (oContent) {
     classesToAdd += " " + oContent.class;
   }
   $contentListItem.addClass('lbjs-item contentListItem ' + classesToAdd);
+  $contentListItem.attr('data-type', 'content');
   var $contentLabel = $('<div class = "contentListItemLabel" title="' + oContent.name + '">' + oContent.name + '</div>')
   $contentListItem.append($contentLabel);
-  //var $entityLockIcon = $('<span class="contentLockIcon fa fa-lock"></span>');
-  /*if (oContent.lockInfo) {
-    if (sSessionId != oContent.lockInfo.sessionId || sTabSessionId != oContent.lockInfo.tabSessionId) {
-      $entityLockIcon.addClass('show');
-    }
-  }*/
-  //$contentListItem.append($entityLockIcon);
+
   $contentLabel.after('<span class="unsavedContent" title="Unsaved Content" style="display: none">*</span>');
   $contentListItem.attr('data-id', oContent.id);
   $contentListItem.attr('data-name', oContent.name);
@@ -336,7 +339,8 @@ function removeDirtyMarkFromContent ($element) {
 function contentListItemClicked (oEvent) {
   $currentlyClickedContentItem = $(oEvent.currentTarget);
   if ((oCurrentlySelectedContent && !oCurrentlySelectedContent.isDirty) || !oCurrentlySelectedContent) {
-    var $contentListItem = $(oEvent.currentTarget);
+    aModifiedSectionsOfCurrentContent = [];
+    var $contentListItem = $currentlyClickedContentItem;
     $('#contentLabel').text($contentListItem.attr('data-name'));
     oCurrentlySelectedContent = applicationData.contentData[$contentListItem.attr('data-id')];
     $currentlySelectedContentItem = $contentListItem;
@@ -357,6 +361,7 @@ function contentListItemClicked (oEvent) {
 
 function displayDataForContentElement ($element, $container) {
   var bDataAdded = false;
+
   if ($element.attr('data-id') == "richTextControl") {
     appendSeperatorDiv($container);
     createTextEditorInContainer($container);
@@ -365,13 +370,21 @@ function displayDataForContentElement ($element, $container) {
     appendSeperatorDiv($container);
     createImageInsertInContainer($container);
     bDataAdded = true;
-  } else {
-    var sContentHTML = applicationData.contentData[$element.attr('data-id')].html;
-    var $contentHolderDiv = $('<div></div>');
-    $contentHolderDiv.html(sContentHTML);
-    if (sContentHTML) {
-      loadContentInRightPanel($contentHolderDiv);
+  } else if ($element.attr('data-type') == "content") {
+    var aSectionsInContent = applicationData.contentData[$element.attr('data-id')].sections;
+
+    if (aSectionsInContent.length > 0) {
       bDataAdded = true;
+      for (var iIndex = 0; iIndex < aSectionsInContent.length; iIndex++) {
+        var sSectionId = aSectionsInContent[iIndex];
+        var oSection = $.extend({}, true, applicationData.sectionData[sSectionId]);
+        appendSeperatorDiv($container);
+        if (oSection.type == "richTextEditor") {
+          createTextEditorInContainer($container, oSection);
+        } else if (oSection.type == "image") {
+          createImageInsertInContainer($container, oSection);
+        }
+      }
     }
   }
 
@@ -430,4 +443,15 @@ function onSectionTitleChange(oEvent){
   var sNewValue = $(oEvent.currentTarget).val();
   var $contentContainer = $(oEvent.currentTarget).parents('.section-title').eq(0).siblings('.contentContainer');
   $contentContainer.attr('data-section-title',sNewValue);
+}
+
+function saveSectionData () {
+  for (var iIndex = 0; iIndex < aModifiedSectionsOfCurrentContent.length; iIndex++) {
+    var oSectionaData = aModifiedSectionsOfCurrentContent[iIndex];
+    applicationData.sectionData[oSectionaData.id] = oSectionaData;
+  }
+}
+
+function contentChangedInEditor (oEvent, $editor) {
+
 }
