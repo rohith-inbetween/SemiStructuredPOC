@@ -9,16 +9,20 @@ function attachEventsOnElement () {
 
   $('#rightContainer').droppable({
                                    drop: function (oEvent, ui) {
-                                     var $draggable = ui.draggable;
-                                     var $droppable = $(this);
-                                     //$draggable.trigger('selected');
-                                     var bDataAdded = displayDataForContentElement($draggable, $droppable);
-                                     if (bDataAdded) {
-                                       var sCurrentlySelectedContentListItemId = oCurrentlySelectedContent.id;
-                                       var $selectedContentListItem = $('.contentListItem[data-id="' + sCurrentlySelectedContentListItemId + '"]')
-                                       markContentAsDirty($selectedContentListItem);
+                                     if (oCurrentlySelectedContent) {
+                                       var $draggable = ui.draggable;
+                                       var $droppable = $(this);
+                                       //$draggable.trigger('selected');
+                                       var bDataAdded = displayDataForContentElement($draggable, $droppable);
+                                       if (bDataAdded) {
+                                         var sCurrentlySelectedContentListItemId = oCurrentlySelectedContent.id;
+                                         var $selectedContentListItem = $('.contentListItem[data-id="' + sCurrentlySelectedContentListItemId + '"]')
+                                         markContentAsDirty($selectedContentListItem);
+                                       }
+                                       $droppable.animate({scrollTop: $droppable[0].scrollHeight}, 500);
+                                     } else {
+                                       alertify.warning("No Content selected to drag, select any content first.");
                                      }
-                                     $droppable.animate({scrollTop: $droppable[0].scrollHeight}, 500);
                                    },
                                    accept: ".contentListItem"
                                  });
@@ -357,6 +361,11 @@ function makeElementDraggable ($element) {
                                 return $('<div class="dragHelperDiv on-drag" >');
                               },
                               start: function (event, ui) {
+                                if (!oCurrentlySelectedContent) {
+                                  alertify.warning("No Content selected to drag, select any content first.");
+
+                                  return false;
+                                }
                                 enableGrabCursor();
                               },
                               stop: function (event, ui) {
