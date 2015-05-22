@@ -194,7 +194,7 @@ div.topPanelButton:hover {
     margin-left: 5px;
 }
 
-.contentListItem[selected]{
+.contentListItem.selected{
     background: rgba(11, 51, 128, 0.5) !important;
     color: #ffffff;
 }

@@ -278,8 +278,9 @@ function saveContent (oEvent) {
     oCurrentlySelectedContent.isDirty = false;
     var $sectionList = createNewSectionsList(oCurrentlySelectedContent.sections);
     var $selectedContentListItem = $('.contentListItem[data-id="' + oCurrentlySelectedContent.id + '"]');
-    $selectedContentListItem.next('.sectionList').html($sectionList.html());
+    $selectedContentListItem.next('.sectionList').replaceWith($sectionList);
     removeDirtyMarkFromContent($selectedContentListItem);
+    makeElementDraggable($sectionList.find('.contentListItem'));
     if (oCurrentlySelectedContent.sections.length) {
       $selectedContentListItem.find('.content-section-expander').css('visibility', 'visible');
     }
@@ -367,7 +368,6 @@ function createNewSectionsList (aSections) {
 
     $sectionList.append($contentListItem);
   }
-  makeElementDraggable($sectionList.find('.contentListItem'));
 
   return $sectionList;
 }
@@ -383,10 +383,14 @@ function removeDirtyMarkFromContent ($element) {
 }
 
 function contentListItemClicked (oEvent) {
-  $currentlyClickedContentItem = $(oEvent.currentTarget);
+  var $contentListItem = $(oEvent.currentTarget);
+  $currentlyClickedContentItem = $contentListItem;
   if ((oCurrentlySelectedContent && !oCurrentlySelectedContent.isDirty) || !oCurrentlySelectedContent) {
+    $('.contentListItem').removeClass('selected');
+    $contentListItem.addClass('selected');
     aModifiedSectionsOfCurrentContent = [];
-    var $contentListItem = $currentlyClickedContentItem;
+    $currentlySelectedContentItem = $contentListItem;
+
     var sListItemName = $contentListItem.attr('data-name');
     var sListItemType = $contentListItem.attr('data-type');
     var sListItemId = $contentListItem.attr('data-id');
@@ -399,9 +403,6 @@ function contentListItemClicked (oEvent) {
       $('#contentLabel').text("Section : " + sListItemName);
       $('#saveContent').addClass('disabled');
     }
-    $currentlySelectedContentItem = $contentListItem;
-    $('.contentListItem').removeAttr('selected');
-    $contentListItem.attr('selected', 'selected');
     var $container = $('#rightContainer');
     $container.empty();
     displayDataForContentElement($contentListItem, $container);
