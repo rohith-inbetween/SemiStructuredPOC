@@ -280,42 +280,49 @@ function saveContent () {
 }
 
 function createContentListComponent () {
-  var $contentsList = $('#contentList').next().find('.lbjs-list');
-  if (!$contentsList.length) {
-    var $listbox = $('#contentList').listbox({
-                               'searchbar': true,
-                               'searchRegex' : ""
-                             });
-    $('#contentList').next().find('.lbjs-list').css('height', '');
-  }
+  /*var $contentsList = $('#contentList').next().find('.lbjs-list');
+   if (!$contentsList.length) {
+   var $listbox = $('#contentList').listbox({
+   'searchbar': true,
+   'searchRegex' : ""
+   });
+   $('#contentList').next().find('.lbjs-list').css('height', '');
+   }*/
+
+  var $listContainer = $('#content-list-container');
+  var $searchInput = $('<input type="text" id="content-search-input"/>');
+  var $contentListData = $('<div id="listData"></div>');
+  $listContainer.append($searchInput);
+  $listContainer.append($contentListData);
 }
 
 function addContentToList (oContent) {
-  var $entitiesList = $('#contentList').next().find('.lbjs-list');
-  var $entityListItem = null;
+  var $contentList = $('#content-list-container').find('#listData');
+  var $contentsListItem = null;
+  var $sectionsList = null;
   if (oContent) {
-    $entityListItem = createNewContentItem(oContent);
-    $entitiesList.append($entityListItem);
-    $entityListItem.click();
+    $contentsListItem = createNewContentItem(oContent);
+    $contentList.append($contentsListItem);
+    $contentsListItem.click();
   } else {
     var oContentData = applicationData.contentData;
     for (var sKey in oContentData) {
-      if (oContentData[sKey].hasOwnProperty('isDirty')) {
-        oContentData[sKey].isDirty = false;
+      if (oContentData.hasOwnProperty(sKey)) {
+        if (oContentData[sKey].hasOwnProperty('isDirty')) {
+          oContentData[sKey].isDirty = false;
+        }
+        $contentsListItem = createNewContentItem(oContentData[sKey]);
+        $contentList.append($contentsListItem);
+        $sectionsList = createNewSectionsList(oContentData[sKey].sections);
+        $contentList.append($sectionsList);
       }
-      $entityListItem = createNewContentItem(oContentData[sKey]);
-      $entitiesList.append($entityListItem);
     }
   }
 }
 
 function createNewContentItem (oContent) {
   var $contentListItem = $('<div>');
-  var classesToAdd = '';
-  if(oContent.class){
-    classesToAdd += " " + oContent.class;
-  }
-  $contentListItem.addClass('lbjs-item contentListItem ' + classesToAdd);
+  $contentListItem.addClass('contentListItem ' + oContent.class);
   $contentListItem.attr('data-type', 'content');
   var $contentLabel = $('<div class = "contentListItemLabel" title="' + oContent.name + '">' + oContent.name + '</div>')
   $contentListItem.append($contentLabel);
@@ -323,8 +330,29 @@ function createNewContentItem (oContent) {
   $contentLabel.after('<span class="unsavedContent" title="Unsaved Content" style="display: none">*</span>');
   $contentListItem.attr('data-id', oContent.id);
   $contentListItem.attr('data-name', oContent.name);
-  $contentListItem.attr('title', oContent.name);
+
   return $contentListItem;
+}
+
+function createNewSectionsList (aSections) {
+  var $sectionList = $('<div class="sectionList" style="display: none">');
+
+  for (var iIndex = 0; iIndex < aSections.length; iIndex++) {
+    var sSectionId = aSections[iIndex];
+    var oSection = applicationData.sectionData[sSectionId];
+    var $contentListItem = $('<div>');
+    $contentListItem.attr('data-type', 'section');
+    var $contentLabel = $('<div class = "sectionListItemLabel" title="' + oSection.name + '">' + oSection.name + '</div>')
+    $contentListItem.append($contentLabel);
+
+    //$contentLabel.after('<span class="unsavedSection" title="Unsaved Section" style="display: none">*</span>');
+    $contentListItem.attr('data-id', oSection.id);
+    $contentListItem.attr('data-name', oSection.name);
+
+    $sectionList.append($contentListItem);
+  }
+
+  return $sectionList;
 }
 
 function markContentAsDirty ($element) {
@@ -347,6 +375,8 @@ function contentListItemClicked (oEvent) {
     $currentlySelectedContentItem = $contentListItem;
     $('.contentListItem').removeAttr('selected');
     $contentListItem.attr('selected', 'selected');
+    $('#content-list-container').find('.sectionList').hide();
+    $contentListItem.next('.sectionList').show();
     makeElementDraggable($contentListItem);
     var $container = $('#rightContainer');
     $container.empty();
