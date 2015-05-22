@@ -278,7 +278,9 @@ function saveContent (oEvent) {
     oCurrentlySelectedContent.isDirty = false;
     var $sectionList = createNewSectionsList(oCurrentlySelectedContent.sections);
     var $selectedContentListItem = $('.contentListItem[data-id="' + oCurrentlySelectedContent.id + '"]');
-    $selectedContentListItem.next('.sectionList').replaceWith($sectionList);
+    var $oldSectionList = $selectedContentListItem.next('.sectionList');
+    $sectionList.css('display', $oldSectionList.css('display'));
+    $oldSectionList.replaceWith($sectionList);
     removeDirtyMarkFromContent($selectedContentListItem);
     makeElementDraggable($('.contentListItem'));
     if (oCurrentlySelectedContent.sections.length) {
@@ -305,13 +307,8 @@ function createContentListComponent () {
 
 function addContentToList (oContent) {
   var $contentList = $('#content-list-container').find('#listData');
-  var $contentsListItem = null;
-  var $sectionsList = null;
   if (oContent) {
-    $contentsListItem = createNewContentItem(oContent);
-    $contentList.append($contentsListItem);
-    $sectionsList = createNewSectionsList(oContent.sections);
-    $contentList.append($sectionsList);
+    var $contentsListItem = addContentItemDivToList($contentList, oContent);
     $contentsListItem.click();
   } else {
     var oContentData = applicationData.contentData;
@@ -320,13 +317,19 @@ function addContentToList (oContent) {
         if (oContentData[sKey].hasOwnProperty('isDirty')) {
           oContentData[sKey].isDirty = false;
         }
-        $contentsListItem = createNewContentItem(oContentData[sKey]);
-        $contentList.append($contentsListItem);
-        $sectionsList = createNewSectionsList(oContentData[sKey].sections);
-        $contentList.append($sectionsList);
+        addContentItemDivToList($contentList, oContentData[sKey]);
       }
     }
   }
+}
+
+function addContentItemDivToList ($contentList, oContent) {
+  var $contentsListItem = createNewContentItem(oContent);
+  $contentList.append($contentsListItem);
+  var $sectionsList = createNewSectionsList(oContent.sections);
+  $contentList.append($sectionsList);
+
+  return $contentsListItem;
 }
 
 function createNewContentItem (oContent) {
