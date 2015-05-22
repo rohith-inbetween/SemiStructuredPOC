@@ -217,7 +217,6 @@ function computeSectionsData () {
   oCurrentlySelectedContent.sections = [];
   for(var iIndex = 0 ; iIndex < aModifiedSectionsOfCurrentContent.length ; iIndex++){
     var oModifiedSection = aModifiedSectionsOfCurrentContent[iIndex];
-    oCurrentlySelectedContent.sections.push(oModifiedSection.id);
     var sSectionName;
     if (oModifiedSection.type == "richTextEditor") {
       var $sectionContainer = $('#rightContainer').find('[data-id="'+ oModifiedSection.id +'"]');
@@ -239,6 +238,8 @@ function computeSectionsData () {
       oModifiedSection.scalingClass = sScalingClass;
     }
     oModifiedSection.name = sSectionName;
+    var oSectionObj = {id:oModifiedSection.id, name:oModifiedSection.name};
+    oCurrentlySelectedContent.sections.push(oSectionObj);
   }
 }
 
@@ -338,8 +339,7 @@ function createNewSectionsList (aSections) {
   var $sectionList = $('<div class="sectionList" style="display: none">');
 
   for (var iIndex = 0; iIndex < aSections.length; iIndex++) {
-    var sSectionId = aSections[iIndex];
-    var oSection = applicationData.sectionData[sSectionId];
+    var oSection = aSections[iIndex];
     var $contentListItem = $('<div>');
     $contentListItem.attr('data-type', 'section');
     var $contentLabel = $('<div class = "sectionListItemLabel" title="' + oSection.name + '">' + oSection.name + '</div>')
@@ -407,7 +407,7 @@ function displayDataForContentElement ($element, $container) {
     if (aSectionsInContent.length > 0) {
       bDataAdded = true;
       for (var iIndex = 0; iIndex < aSectionsInContent.length; iIndex++) {
-        var sSectionId = aSectionsInContent[iIndex];
+        var sSectionId = aSectionsInContent[iIndex].id;
         var oSection = $.extend({}, true, applicationData.sectionData[sSectionId]);
         appendSeperatorDiv($container);
         if (oSection.type == "richTextEditor") {
