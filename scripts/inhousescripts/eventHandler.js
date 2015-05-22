@@ -5,27 +5,19 @@ function onDocumentReady () {
 }
 
 function attachEventsOnElement () {
+  $('#exportHTML').on('click', exportToHtmlButtonClicked);
+  $('#createNewContent').on('click', createContentButtonClicked);
+  $('#saveContent').on('click', saveContent);
+  $('body').on('click', '.insert-image-button', insertImageButtonClicked);
+  $('body').on('click', '.contentListItem', null, contentListItemClicked);
+  $('body').on('click', '.content-section-expander', null, contentListItemExpanderClicked);
+  $('body').on('change', '.fileUpload', uploadImage);
   makeElementDraggable($('.contentListItem'));
 
   $('#rightContainer').droppable({
                                    drop: function (oEvent, ui) {
-                                     if (oCurrentlySelectedContent) {
-                                       if($currentlySelectedContentItem.hasClass('basic-content-element')){
-                                         alertify.warning("Cannot edit basic element");
-                                         return false;
-                                       }
-                                       var $draggable = ui.draggable;
-                                       var $droppable = $(this);
-                                       var bDataAdded = displayDataForContentElement($draggable, $droppable);
-                                       if (bDataAdded) {
-                                         var sCurrentlySelectedContentListItemId = oCurrentlySelectedContent.id;
-                                         var $selectedContentListItem = $('.contentListItem[data-id="' + sCurrentlySelectedContentListItemId + '"]')
-                                         markContentAsDirty($selectedContentListItem);
-                                       }
-                                       $droppable.animate({scrollTop: $droppable[0].scrollHeight}, 500);
-                                     } else {
-                                       alertify.warning("No Content selected to edit, select any content first.");
-                                     }
+                                     var $draggable = ui.draggable;
+                                     dropContent($(this), $draggable);
                                    },
                                    accept: ".contentListItem"
                                  });
@@ -63,28 +55,21 @@ function attachEventsOnElement () {
                                      }
                                    });
 
-  $('#exportHTML').on('click', exportToHtmlButtonClicked);
-  $('#createNewContent').on('click', createContentButtonClicked);
-  $('#saveContent').on('click', saveContent);
-  $('body').on('click', '.insert-image-button', insertImageButtonClicked);
-  $('body').on('click', '.contentListItem', null, contentListItemClicked);
-  $('body').on('click', '.content-section-expander', null, contentListItemExpanderClicked);
-  $('body').on('change', '.fileUpload', function (oEvent) {
-    $(oEvent.currentTarget).siblings('.insert-image-button,.insert-image-label').remove();
-    $imageDiv = $(oEvent.currentTarget).closest('.addImageOption').siblings('.imageDiv').show();
-
-    var oImageFiles = oEvent.target.files; // FileList object
-    addImageToContainer(oImageFiles);
-  });
 }
 
-function createTextEditorInContainer ($element, oSectionData) {
+function createTextEditorInContainer ($element, oSectionData, bToBeAppendedInBetween) {
+  appendSeperatorDiv($element, bToBeAppendedInBetween);
   if (!oSectionData) {
     oSectionData = $.extend({}, true, applicationData.sectionData.richTextControlSection);
     oSectionData.id = GUID.random();
   }
   aModifiedSectionsOfCurrentContent.push(oSectionData);
-  $element.append(getTextEditorDiv(oSectionData));
+
+  if (bToBeAppendedInBetween) {
+    $element.before(getTextEditorDiv(oSectionData));
+  } else {
+    $element.append(getTextEditorDiv(oSectionData));
+  }
 }
 
 function getTextEditorDiv (oSectionData) {
@@ -108,13 +93,19 @@ function getTextEditorDiv (oSectionData) {
   return $newEditorContainer;
 }
 
-function createImageInsertInContainer ($element, oSectionData) {
+function createImageInsertInContainer ($element, oSectionData, bToBeAppendedInBetween) {
+  appendSeperatorDiv($element, bToBeAppendedInBetween);
   if (!oSectionData) {
     oSectionData = $.extend({}, true, applicationData.sectionData.imageControlSection);
     oSectionData.id = GUID.random();
   }
   aModifiedSectionsOfCurrentContent.push(oSectionData);
-  $element.append(getImageInsert(oSectionData));
+
+  if (bToBeAppendedInBetween) {
+    $element.before(getImageInsert(oSectionData));
+  } else {
+    $element.append(getImageInsert(oSectionData));
+  }
 }
 
 function getImageInsert (oSectionData) {
@@ -166,11 +157,26 @@ function disableGrabCursor () {
   $('body').css('cursor', '');
 }
 
-function appendSeperatorDiv ($element) {
-  if ($('#rightContainer .control-component').length > 0) {
-    var $seperatorDiv = $('<div class="right-container-field-seperator innerBorder">');
-    $element.append($seperatorDiv);
-  }
+function appendSeperatorDiv ($element, bToBeAppendedInBetween) {
+  //if ($('#rightContainer .control-component').length > 0) {
+    var $seperatorDiv = $('<div class="right-container-field-seperator"><div id="seperator-line"></div></div>');
+
+    if (bToBeAppendedInBetween) {
+      $element.before($seperatorDiv);
+    } else {
+      $element.append($seperatorDiv);
+    }
+
+    $seperatorDiv.droppable({
+                              hoverClass: "dragHover",
+                              greedy: true,
+                              drop: function (oEvent, ui) {
+                                var $draggable = ui.draggable;
+                                dropContent($(this), $draggable);
+                              },
+                              accept: ".contentListItem"
+                            });
+  //}
 }
 
 function applyImageScalingCss ($element, sCssClass) {
@@ -420,6 +426,7 @@ function contentListItemClicked (oEvent) {
 
 function displayDataForContentElement ($element, $container) {
   var bDataAdded = false;
+  var bToBeAppendedInBetween = $container.hasClass('right-container-field-seperator');
 
   if($element.attr('data-type') == "section"){
     var sSectionId = $element.attr('data-id');
@@ -427,13 +434,11 @@ function displayDataForContentElement ($element, $container) {
     var oSection = applicationData.sectionData[sSectionId];
     if (sSectionId == "richTextControl" ||
         (sSectionType && sSectionType == "richTextEditor")) {
-      appendSeperatorDiv($container);
-      createTextEditorInContainer($container, oSection);
+      createTextEditorInContainer($container, oSection, bToBeAppendedInBetween);
       bDataAdded = true;
     } else if (sSectionId == "imageControl" ||
         (sSectionType && sSectionType == "image")) {
-      appendSeperatorDiv($container);
-      createImageInsertInContainer($container, oSection);
+      createImageInsertInContainer($container, oSection, bToBeAppendedInBetween);
       bDataAdded = true;
     }
   }else if ($element.attr('data-type') == "content") {
@@ -444,11 +449,10 @@ function displayDataForContentElement ($element, $container) {
       for (var iIndex = 0; iIndex < aSectionsInContent.length; iIndex++) {
         var sSectionId = aSectionsInContent[iIndex].id;
         var oSection = $.extend({}, true, applicationData.sectionData[sSectionId]);
-        appendSeperatorDiv($container);
         if (oSection.type == "richTextEditor") {
-          createTextEditorInContainer($container, oSection);
+          createTextEditorInContainer($container, oSection, bToBeAppendedInBetween);
         } else if (oSection.type == "image") {
-          createImageInsertInContainer($container, oSection);
+          createImageInsertInContainer($container, oSection, bToBeAppendedInBetween);
         }
       }
     }
@@ -535,6 +539,32 @@ function contentListItemExpanderClicked (oEvent) {
   } else {
     $sectionList.hide();
   }
+}
+
+function dropContent ($droppable, $draggable) {
+  if (oCurrentlySelectedContent) {
+    if($currentlySelectedContentItem.hasClass('basic-content-element')){
+      alertify.warning("Cannot edit basic element");
+      return false;
+    }
+    var bDataAdded = displayDataForContentElement($draggable, $droppable);
+    if (bDataAdded) {
+      var sCurrentlySelectedContentListItemId = oCurrentlySelectedContent.id;
+      var $selectedContentListItem = $('.contentListItem[data-id="' + sCurrentlySelectedContentListItemId + '"]')
+      markContentAsDirty($selectedContentListItem);
+    }
+    $droppable.animate({scrollTop: $droppable[0].scrollHeight}, 500);
+  } else {
+    alertify.warning("No Content selected to edit, select any content first.");
+  }
+}
+
+function uploadImage (oEvent) {
+  $(oEvent.currentTarget).siblings('.insert-image-button,.insert-image-label').remove();
+  $imageDiv = $(oEvent.currentTarget).closest('.addImageOption').siblings('.imageDiv').show();
+
+  var oImageFiles = oEvent.target.files; // FileList object
+  addImageToContainer(oImageFiles);
 }
 
 function contentChangedInEditor (oEvent, $editor) {
