@@ -131,6 +131,11 @@ div#saveContent {
     width: 150px;
 }
 
+div#saveContent.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
 div.topPanelButton {
     height: 28px;
     color: white;
@@ -194,8 +199,13 @@ div.topPanelButton:hover {
     color: #ffffff;
 }
 
-.contentListItem, .sectionListItem {
+.contentListItem{
+    cursor: pointer;
     padding: 5px 0 0 0;
+}
+
+.sectionList .contentListItem[data-type="section"] {
+    padding-left: 30px;
 }
 
 .contentListItemLabel {
@@ -279,6 +289,5 @@ div#listData {
 }
 
 .sectionList {
-    padding-left: 30px;
     background-color: rgb(229, 226, 226);
 }

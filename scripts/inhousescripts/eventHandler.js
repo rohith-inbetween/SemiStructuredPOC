@@ -16,7 +16,6 @@ function attachEventsOnElement () {
                                        }
                                        var $draggable = ui.draggable;
                                        var $droppable = $(this);
-                                       //$draggable.trigger('selected');
                                        var bDataAdded = displayDataForContentElement($draggable, $droppable);
                                        if (bDataAdded) {
                                          var sCurrentlySelectedContentListItemId = oCurrentlySelectedContent.id;
@@ -69,7 +68,6 @@ function attachEventsOnElement () {
   $('#saveContent').on('click', saveContent);
   $('body').on('click', '.insert-image-button', insertImageButtonClicked);
   $('body').on('click', '.contentListItem', null, contentListItemClicked);
-  //$('body').on('click', '.sectionListItem', null, contentListItemClicked);
   $('body').on('click', '.content-section-expander', null, contentListItemExpanderClicked);
   $('body').on('change', '.fileUpload', function (oEvent) {
     $(oEvent.currentTarget).siblings('.insert-image-button,.insert-image-label').remove();
@@ -273,36 +271,35 @@ function createContentDialogCallback (oEvent, sValue) {
   addContentToList(oContentData);
 }
 
-function saveContent () {
-  computeSectionsData();
-  saveSectionData();
-  oCurrentlySelectedContent.isDirty = false;
-  var $sectionList = createNewSectionsList(oCurrentlySelectedContent.sections);
-  var $selectedContentListItem = $('.contentListItem[data-id="' + oCurrentlySelectedContent.id + '"]');
-  $selectedContentListItem.next('.sectionList').html($sectionList.html());
-  removeDirtyMarkFromContent($selectedContentListItem);
-  if (oCurrentlySelectedContent.sections.length) {
-    $selectedContentListItem.find('.content-section-expander').css('visibility', 'visible');
-  }
+function saveContent (oEvent) {
+  if (!$(oEvent.target).hasClass('disabled')) {
+    computeSectionsData();
+    saveSectionData();
+    oCurrentlySelectedContent.isDirty = false;
+    var $sectionList = createNewSectionsList(oCurrentlySelectedContent.sections);
+    var $selectedContentListItem = $('.contentListItem[data-id="' + oCurrentlySelectedContent.id + '"]');
+    $selectedContentListItem.next('.sectionList').html($sectionList.html());
+    removeDirtyMarkFromContent($selectedContentListItem);
+    if (oCurrentlySelectedContent.sections.length) {
+      $selectedContentListItem.find('.content-section-expander').css('visibility', 'visible');
+    }
 
-  alertify.success("Content Saved Successfully");
+    alertify.success("Content Saved Successfully");
+  }
 }
 
 function createContentListComponent () {
-  /*var $contentsList = $('#contentList').next().find('.lbjs-list');
-   if (!$contentsList.length) {
-   var $listbox = $('#contentList').listbox({
-   'searchbar': true,
-   'searchRegex' : ""
-   });
-   $('#contentList').next().find('.lbjs-list').css('height', '');
-   }*/
-
   var $listContainer = $('#content-list-container');
   var $searchInput = $('<input type="text" id="content-search-input" placeholder="Search.."/>');
   var $contentListData = $('<div id="listData"></div>');
   $listContainer.append($searchInput);
   $listContainer.append($contentListData);
+
+  $("#listdata").searcher({
+                            itemSelector: ".contentListItem",
+                            textSelector:  ".contentListItemLabel",
+                            inputSelector: "#content-search-input"
+                          });
 }
 
 function addContentToList (oContent) {
@@ -370,6 +367,7 @@ function createNewSectionsList (aSections) {
 
     $sectionList.append($contentListItem);
   }
+  makeElementDraggable($sectionList.find('.contentListItem'));
 
   return $sectionList;
 }
@@ -390,18 +388,20 @@ function contentListItemClicked (oEvent) {
     aModifiedSectionsOfCurrentContent = [];
     var $contentListItem = $currentlyClickedContentItem;
     var sListItemName = $contentListItem.attr('data-name');
-    $('#contentLabel').text(sListItemName);
     var sListItemType = $contentListItem.attr('data-type');
     var sListItemId = $contentListItem.attr('data-id');
     if(sListItemType == 'content'){
       oCurrentlySelectedContent = applicationData.contentData[sListItemId];
+      $('#contentLabel').text("Content : " + sListItemName);
+      $('#saveContent').removeClass('disabled');
     } else if(sListItemType == 'section'){
       oCurrentlySelectedContent = applicationData.sectionData[sListItemId];
+      $('#contentLabel').text("Section : " + sListItemName);
+      $('#saveContent').addClass('disabled');
     }
     $currentlySelectedContentItem = $contentListItem;
     $('.contentListItem').removeAttr('selected');
     $contentListItem.attr('selected', 'selected');
-    makeElementDraggable($contentListItem);
     var $container = $('#rightContainer');
     $container.empty();
     displayDataForContentElement($contentListItem, $container);
