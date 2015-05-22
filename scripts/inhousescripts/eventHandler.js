@@ -69,6 +69,7 @@ function attachEventsOnElement () {
   $('#saveContent').on('click', saveContent);
   $('body').on('click', '.insert-image-button', insertImageButtonClicked);
   $('body').on('click', '.contentListItem', null, contentListItemClicked);
+  $('body').on('click', '.content-section-expander', null, contentListItemExpanderClicked);
   $('body').on('change', '.fileUpload', function (oEvent) {
     $(oEvent.currentTarget).siblings('.insert-image-button,.insert-image-label').remove();
     $imageDiv = $(oEvent.currentTarget).closest('.addImageOption').siblings('.imageDiv').show();
@@ -322,13 +323,16 @@ function addContentToList (oContent) {
 }
 
 function createNewContentItem (oContent) {
-  var $contentListItem = $('<div>');
-  $contentListItem.addClass('contentListItem ' + oContent.class);
+  var $contentListItem = $('<div class="contentListItem '+ oContent.class +'">');
   $contentListItem.attr('data-type', 'content');
   var $contentLabel = $('<div class = "contentListItemLabel" title="' + oContent.name + '">' + oContent.name + '</div>')
   $contentListItem.append($contentLabel);
 
-  $contentLabel.after('<span class="unsavedContent" title="Unsaved Content" style="display: none">*</span>');
+  $contentLabel.before('<span class="content-section-expander fa fa-chevron-circle-right"></span>');
+  $contentLabel.after('<span class="unsavedContent" style="display: none">*</span>');
+  if (!oContent.sections.length) {
+    $contentListItem.find('.content-section-expander').css('visibility', 'hidden');
+  }
   $contentListItem.attr('data-id', oContent.id);
   $contentListItem.attr('data-name', oContent.name);
 
@@ -340,7 +344,7 @@ function createNewSectionsList (aSections) {
 
   for (var iIndex = 0; iIndex < aSections.length; iIndex++) {
     var oSection = aSections[iIndex];
-    var $contentListItem = $('<div>');
+    var $contentListItem = $('<div class="sectionListItem">');
     $contentListItem.attr('data-type', 'section');
     var $contentLabel = $('<div class = "sectionListItemLabel" title="' + oSection.name + '">' + oSection.name + '</div>')
     $contentListItem.append($contentLabel);
@@ -375,8 +379,6 @@ function contentListItemClicked (oEvent) {
     $currentlySelectedContentItem = $contentListItem;
     $('.contentListItem').removeAttr('selected');
     $contentListItem.attr('selected', 'selected');
-    $('#content-list-container').find('.sectionList').hide();
-    $contentListItem.next('.sectionList').show();
     makeElementDraggable($contentListItem);
     var $container = $('#rightContainer');
     $container.empty();
@@ -480,6 +482,24 @@ function saveSectionData () {
   for (var iIndex = 0; iIndex < aModifiedSectionsOfCurrentContent.length; iIndex++) {
     var oSectionaData = aModifiedSectionsOfCurrentContent[iIndex];
     applicationData.sectionData[oSectionaData.id] = oSectionaData;
+  }
+}
+
+function contentListItemExpanderClicked (oEvent) {
+  var $expanderIcon = $(this);
+  if ($expanderIcon.hasClass('fa-chevron-circle-right')) {
+    $expanderIcon.removeClass('fa-chevron-circle-right');
+    $expanderIcon.addClass('fa-chevron-circle-down');
+  } else {
+    $expanderIcon.removeClass('fa-chevron-circle-down');
+    $expanderIcon.addClass('fa-chevron-circle-right');
+  }
+
+  var $sectionList = $expanderIcon.parents('.contentListItem').next('.sectionList');
+  if ($sectionList.css('display') == 'none') {
+    $sectionList.show();
+  } else {
+    $sectionList.hide();
   }
 }
 

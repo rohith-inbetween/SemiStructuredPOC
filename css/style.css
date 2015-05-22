@@ -194,6 +194,10 @@ div.topPanelButton:hover {
     color: #ffffff;
 }
 
+.contentListItem, .sectionListItem {
+    padding: 5px 0 0 0;
+}
+
 .contentListItemLabel {
     text-overflow: ellipsis;
     word-wrap: break-word;
@@ -252,4 +256,10 @@ div#contentLabel {
     background: -o-linear-gradient(top, #78b1ed 0%, #417bb5 100%);
     background: -ms-linear-gradient(top, #78b1ed 0%, #417bb5 100%);
     background: linear-gradient(to bottom, #78b1ed 0%, #417bb5 100%);
+}
+
+#content-list-container span.content-section-expander {
+    font-size: 12px;
+    float: left;
+    margin: 3px 6px 0 6px;
 }
