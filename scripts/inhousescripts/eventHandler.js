@@ -71,7 +71,7 @@ function attachEventsOnElement () {
   $('body').on('click', '.contentListItem', null, contentListItemClicked);
   $('body').on('change', '.fileUpload', function (oEvent) {
     $(oEvent.currentTarget).siblings('.insert-image-button,.insert-image-label').remove();
-    $imageDiv = $(oEvent.currentTarget).siblings('.imageDiv').show();
+    $imageDiv = $(oEvent.currentTarget).closest('.addImageOption').siblings('.imageDiv').show();
 
     var oImageFiles = oEvent.target.files; // FileList object
     addImageToContainer(oImageFiles);
@@ -442,7 +442,7 @@ function getSectionTitleBox(sName){
 function onSectionTitleChange(oEvent){
 
   var sNewValue = $(oEvent.currentTarget).val();
-  var $contentContainer = $(oEvent.currentTarget).parents('.section-title').eq(0).siblings('.contentContainer');
+  var $contentContainer = $(oEvent.currentTarget).closest('.section-title').eq(0).siblings('.contentContainer');
   $contentContainer.attr('data-section-title',sNewValue);
 }
 
