@@ -12,6 +12,8 @@ function attachEventsOnElement () {
   $('body').on('click', '.contentListItem', null, contentListItemClicked);
   $('body').on('click', '.content-section-expander', null, contentListItemExpanderClicked);
   $('body').on('change', '.fileUpload', uploadImage);
+  $('body').on('click', '.remove-section', removeSectionRightPanelClicked);
+  $('body').on('click', '.remove-listitem', removeListItemClicked);
   makeElementDraggable($('.contentListItem'));
 
   $('#rightContainer').droppable({
@@ -89,6 +91,7 @@ function getTextEditorDiv (oSectionData) {
   }
   var sSectionName = oSectionData.name;
   $newEditorContainer.prepend(getSectionTitleBox(sSectionName));
+  $newEditorContainer.prepend($('<div class="remove-section fa fa-times-circle">'));
 
   return $newEditorContainer;
 }
@@ -123,6 +126,7 @@ function getImageInsert (oSectionData) {
   $imageFrameComponent.append($imageContainer);
   $imageContainer.wrap('<div class="imageContainerFrame contentContainer ' + oSectionData.scalingClass + '"></div>');
   $imageFrameComponent.prepend(getSectionTitleBox(sSectionName));
+  $imageFrameComponent.prepend($('<div class="remove-section fa fa-times-circle">'));
 
   return $imageFrameComponent;
 }
@@ -354,7 +358,7 @@ function createNewContentItem (oContent) {
   if (!oContent.sections.length) {
     $contentListItem.find('.content-section-expander').css('visibility', 'hidden');
   }
-
+  $contentListItem.prepend($('<div class="remove-listitem fa fa-times-circle">'));
   return $contentListItem;
 }
 
@@ -374,6 +378,7 @@ function createNewSectionsList (aSections) {
     }
     var $contentLabel = $('<div class = "sectionListItemLabel" title="' + oSection.name + '">' + oSection.name + '</div>')
     $contentListItem.append($contentLabel);
+    $contentListItem.prepend($('<div class="remove-listitem fa fa-times-circle">'));
 
     $sectionList.append($contentListItem);
   }
@@ -550,7 +555,7 @@ function dropContent ($droppable, $draggable) {
     var bDataAdded = displayDataForContentElement($draggable, $droppable);
     if (bDataAdded) {
       var sCurrentlySelectedContentListItemId = oCurrentlySelectedContent.id;
-      var $selectedContentListItem = $('.contentListItem[data-id="' + sCurrentlySelectedContentListItemId + '"]')
+      var $selectedContentListItem = $('.contentListItem[data-id="' + sCurrentlySelectedContentListItemId + '"]');
       markContentAsDirty($selectedContentListItem);
     }
     $droppable.animate({scrollTop: $droppable[0].scrollHeight}, 500);
@@ -569,4 +574,56 @@ function uploadImage (oEvent) {
 
 function contentChangedInEditor (oEvent, $editor) {
 
+}
+
+function removeSectionRightPanelClicked(oEvent){
+  var $sectionFrame =$(oEvent.currentTarget).closest('.control-component');
+  var sSectionId = $sectionFrame.attr('data-id');
+  removeSectionFromCurrentlySelectedContent(sSectionId, true);
+  $sectionFrame.prev('.right-container-field-seperator').remove();
+  $sectionFrame.remove();
+}
+
+function removeSectionFromCurrentlySelectedContent(sSectionId){
+  removeSectionFromSectionsList(aModifiedSectionsOfCurrentContent, sSectionId);
+  markContentAsDirty($('.contentListItem[data-id="' + oCurrentlySelectedContent.id + '"]'));
+}
+
+function removeListItemClicked(oEvent){
+  var $listItem =$(oEvent.currentTarget).closest('.contentListItem');
+  var sItemId = $listItem.attr('data-id');
+  var sItemType = $listItem.attr('data-type');
+  if(sItemType == 'content'){
+    removeContent(sItemId)
+  } else if(sItemType == 'section'){
+    var sContentId = $listItem.attr('data-content-id');
+    removeSectionFromContent(sContentId, sItemId);
+  }
+  $listItem.remove();
+}
+
+function removeSectionFromContent(sContentId,sSectionId){
+  var oContent = applicationData.contentData[sContentId];
+  var aSectionsOfContent = oContent.sections;
+  removeSectionFromSectionsList(aSectionsOfContent, sSectionId);
+}
+
+function removeContent(sContentId){
+  if(oCurrentlySelectedContent.id == sContentId){
+    oCurrentlySelectedContent = null;
+    $currentlySelectedContentItem = null;
+    aModifiedSectionsOfCurrentContent = [];
+    $('#rightContainer').clear()
+  }
+  delete(applicationData.contentData[sContentId]);
+}
+
+function removeSectionFromSectionsList(aSectionsOfContent, sSectionId){
+  for(var iSectionIndex = aSectionsOfContent.length - 1 ; iSectionIndex >= 0 ; iSectionIndex--){
+    var oSection = aSectionsOfContent[iSectionIndex];
+    if(oSection.id == sSectionId){
+      aSectionsOfContent.splice(iSectionIndex,1);
+      break;
+    }
+  }
 }

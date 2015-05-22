@@ -302,3 +302,24 @@ div#listData {
 .sectionList {
     background-color: rgb(229, 226, 226);
 }
+
+.remove-section, .remove-listitem{
+    color: red;
+    float: right;
+    cursor: pointer;
+}
+
+.remove-section {
+    opacity: 0.4;
+    margin: 4px 22px 0 0;
+    font-size: 16px;
+}
+
+.remove-listitem {
+    opacity: 0.1;
+    margin: 0 8px 0 0;
+}
+
+.control-component:hover .remove-section, .contentListItem:hover .remove-listitem {
+    opacity: 1;
+}
