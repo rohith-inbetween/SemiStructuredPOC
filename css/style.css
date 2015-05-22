@@ -263,3 +263,22 @@ div#contentLabel {
     float: left;
     margin: 3px 6px 0 6px;
 }
+
+div#content-list-container {
+    height: calc(100% - 36px);
+}
+
+input#content-search-input {
+    width: 100%;
+}
+
+div#listData {
+    background-color: whitesmoke;
+    overflow-y: auto;
+    max-height: calc(100% - 26px);
+}
+
+.sectionList {
+    padding-left: 30px;
+    background-color: rgb(229, 226, 226);
+}

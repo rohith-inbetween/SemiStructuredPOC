@@ -277,8 +277,14 @@ function saveContent () {
   computeSectionsData();
   saveSectionData();
   oCurrentlySelectedContent.isDirty = false;
+  var $sectionList = createNewSectionsList(oCurrentlySelectedContent.sections);
   var $selectedContentListItem = $('.contentListItem[data-id="' + oCurrentlySelectedContent.id + '"]');
+  $selectedContentListItem.next('.sectionList').html($sectionList.html());
   removeDirtyMarkFromContent($selectedContentListItem);
+  if (oCurrentlySelectedContent.sections.length) {
+    $selectedContentListItem.find('.content-section-expander').css('visibility', 'visible');
+  }
+
   alertify.success("Content Saved Successfully");
 }
 
@@ -293,7 +299,7 @@ function createContentListComponent () {
    }*/
 
   var $listContainer = $('#content-list-container');
-  var $searchInput = $('<input type="text" id="content-search-input"/>');
+  var $searchInput = $('<input type="text" id="content-search-input" placeholder="Search.."/>');
   var $contentListData = $('<div id="listData"></div>');
   $listContainer.append($searchInput);
   $listContainer.append($contentListData);
@@ -306,6 +312,8 @@ function addContentToList (oContent) {
   if (oContent) {
     $contentsListItem = createNewContentItem(oContent);
     $contentList.append($contentsListItem);
+    $sectionsList = createNewSectionsList(oContent.sections);
+    $contentList.append($sectionsList);
     $contentsListItem.click();
   } else {
     var oContentData = applicationData.contentData;
@@ -507,6 +515,7 @@ function saveSectionData () {
 }
 
 function contentListItemExpanderClicked (oEvent) {
+  oEvent.stopPropagation();
   var $expanderIcon = $(this);
   if ($expanderIcon.hasClass('fa-chevron-circle-right')) {
     $expanderIcon.removeClass('fa-chevron-circle-right');
