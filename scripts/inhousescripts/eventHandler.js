@@ -350,7 +350,6 @@ function createNewSectionsList (aSections) {
     var oSection = applicationData.sectionData[oSectionObj.id];
     var $contentListItem = $('<div class="contentListItem">');
     $contentListItem.attr('data-type', 'section');
-    debugger;
     if(oSection.type){
       $contentListItem.attr('data-section-type', oSection.type);
     }
