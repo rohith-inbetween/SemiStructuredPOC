@@ -333,9 +333,12 @@ function addContentItemDivToList ($contentList, oContent) {
 }
 
 function createNewContentItem (oContent) {
-  var $contentListItem = $('<div class="contentListItem '+ oContent.class +'">');
-  $contentListItem.addClass('contentListItem ' + oContent.class);
+
   var sType = oContent.class == "basic-content-element" ? "section" : "content";
+  var $contentListItem = $('<div class="contentListItem '+ oContent.class +'">');
+  $contentListItem.attr('data-id', oContent.id);
+  $contentListItem.attr('data-name', oContent.name);
+  $contentListItem.addClass('contentListItem ' + oContent.class);
   $contentListItem.attr('data-type', sType);
   var $contentLabel = $('<div class = "contentListItemLabel" title="' + oContent.name + '">' + oContent.name + '</div>')
   $contentListItem.append($contentLabel);
@@ -345,8 +348,6 @@ function createNewContentItem (oContent) {
   if (!oContent.sections.length) {
     $contentListItem.find('.content-section-expander').css('visibility', 'hidden');
   }
-  $contentListItem.attr('data-id', oContent.id);
-  $contentListItem.attr('data-name', oContent.name);
 
   return $contentListItem;
 }
@@ -359,15 +360,14 @@ function createNewSectionsList (aSections) {
     var oSection = applicationData.sectionData[oSectionObj.id];
     var $contentListItem = $('<div class="contentListItem">');
     $contentListItem.attr('data-type', 'section');
+    $contentListItem.attr('data-id', oSection.id);
+    $contentListItem.attr('data-name', oSection.name);
+
     if(oSection.type){
       $contentListItem.attr('data-section-type', oSection.type);
     }
     var $contentLabel = $('<div class = "sectionListItemLabel" title="' + oSection.name + '">' + oSection.name + '</div>')
     $contentListItem.append($contentLabel);
-
-    //$contentLabel.after('<span class="unsavedSection" title="Unsaved Section" style="display: none">*</span>');
-    $contentListItem.attr('data-id', oSection.id);
-    $contentListItem.attr('data-name', oSection.name);
 
     $sectionList.append($contentListItem);
   }
