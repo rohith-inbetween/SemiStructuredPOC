@@ -83,8 +83,8 @@ function attachEventsOnElement () {
 function createTextEditorInContainer ($element, oSectionData) {
   if (!oSectionData) {
     oSectionData = $.extend({}, true, applicationData.sectionData.richTextControlSection);
+    oSectionData.id = GUID.random();
   }
-  oSectionData.id = GUID.random();
   aModifiedSectionsOfCurrentContent.push(oSectionData);
   $element.append(getTextEditorDiv(oSectionData));
 }
@@ -113,8 +113,8 @@ function getTextEditorDiv (oSectionData) {
 function createImageInsertInContainer ($element, oSectionData) {
   if (!oSectionData) {
     oSectionData = $.extend({}, true, applicationData.sectionData.imageControlSection);
+    oSectionData.id = GUID.random();
   }
-  oSectionData.id = GUID.random();
   aModifiedSectionsOfCurrentContent.push(oSectionData);
   $element.append(getImageInsert(oSectionData));
 }
