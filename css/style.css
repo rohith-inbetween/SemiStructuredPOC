@@ -243,3 +243,13 @@ div#contentLabel {
     float: left;
     padding: 0 10px;
 }
+
+.section-title {
+    background: #78b1ed;
+    background: -moz-linear-gradient(top, #78b1ed 0%, #417bb5 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #78b1ed), color-stop(100%, #417bb5));
+    background: -webkit-linear-gradient(top, #78b1ed 0%, #417bb5 100%);
+    background: -o-linear-gradient(top, #78b1ed 0%, #417bb5 100%);
+    background: -ms-linear-gradient(top, #78b1ed 0%, #417bb5 100%);
+    background: linear-gradient(to bottom, #78b1ed 0%, #417bb5 100%);
+}
