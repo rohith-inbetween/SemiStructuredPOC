@@ -69,6 +69,7 @@ function attachEventsOnElement () {
   $('#saveContent').on('click', saveContent);
   $('body').on('click', '.insert-image-button', insertImageButtonClicked);
   $('body').on('click', '.contentListItem', null, contentListItemClicked);
+  //$('body').on('click', '.sectionListItem', null, contentListItemClicked);
   $('body').on('click', '.content-section-expander', null, contentListItemExpanderClicked);
   $('body').on('change', '.fileUpload', function (oEvent) {
     $(oEvent.currentTarget).siblings('.insert-image-button,.insert-image-label').remove();
@@ -324,7 +325,9 @@ function addContentToList (oContent) {
 
 function createNewContentItem (oContent) {
   var $contentListItem = $('<div class="contentListItem '+ oContent.class +'">');
-  $contentListItem.attr('data-type', 'content');
+  $contentListItem.addClass('contentListItem ' + oContent.class);
+  var sType = oContent.class == "basic-content-element" ? "section" : "content";
+  $contentListItem.attr('data-type', sType);
   var $contentLabel = $('<div class = "contentListItemLabel" title="' + oContent.name + '">' + oContent.name + '</div>')
   $contentListItem.append($contentLabel);
 
@@ -343,9 +346,14 @@ function createNewSectionsList (aSections) {
   var $sectionList = $('<div class="sectionList" style="display: none">');
 
   for (var iIndex = 0; iIndex < aSections.length; iIndex++) {
-    var oSection = aSections[iIndex];
-    var $contentListItem = $('<div class="sectionListItem">');
+    var oSectionObj = aSections[iIndex];
+    var oSection = applicationData.sectionData[oSectionObj.id];
+    var $contentListItem = $('<div class="contentListItem">');
     $contentListItem.attr('data-type', 'section');
+    debugger;
+    if(oSection.type){
+      $contentListItem.attr('data-section-type', oSection.type);
+    }
     var $contentLabel = $('<div class = "sectionListItemLabel" title="' + oSection.name + '">' + oSection.name + '</div>')
     $contentListItem.append($contentLabel);
 
@@ -374,8 +382,15 @@ function contentListItemClicked (oEvent) {
   if ((oCurrentlySelectedContent && !oCurrentlySelectedContent.isDirty) || !oCurrentlySelectedContent) {
     aModifiedSectionsOfCurrentContent = [];
     var $contentListItem = $currentlyClickedContentItem;
-    $('#contentLabel').text($contentListItem.attr('data-name'));
-    oCurrentlySelectedContent = applicationData.contentData[$contentListItem.attr('data-id')];
+    var sListItemName = $contentListItem.attr('data-name');
+    $('#contentLabel').text(sListItemName);
+    var sListItemType = $contentListItem.attr('data-type');
+    var sListItemId = $contentListItem.attr('data-id');
+    if(sListItemType == 'content'){
+      oCurrentlySelectedContent = applicationData.contentData[sListItemId];
+    } else if(sListItemType == 'section'){
+      oCurrentlySelectedContent = applicationData.sectionData[sListItemId];
+    }
     $currentlySelectedContentItem = $contentListItem;
     $('.contentListItem').removeAttr('selected');
     $contentListItem.attr('selected', 'selected');
@@ -395,15 +410,22 @@ function contentListItemClicked (oEvent) {
 function displayDataForContentElement ($element, $container) {
   var bDataAdded = false;
 
-  if ($element.attr('data-id') == "richTextControl") {
-    appendSeperatorDiv($container);
-    createTextEditorInContainer($container);
-    bDataAdded = true;
-  } else if ($element.attr('data-id') == "imageControl") {
-    appendSeperatorDiv($container);
-    createImageInsertInContainer($container);
-    bDataAdded = true;
-  } else if ($element.attr('data-type') == "content") {
+  if($element.attr('data-type') == "section"){
+    var sSectionId = $element.attr('data-id');
+    var sSectionType = $element.attr('data-section-type');
+    var oSection = applicationData.sectionData[sSectionId];
+    if (sSectionId == "richTextControl" ||
+        (sSectionType && sSectionType == "richTextEditor")) {
+      appendSeperatorDiv($container);
+      createTextEditorInContainer($container, oSection);
+      bDataAdded = true;
+    } else if (sSectionId == "imageControl" ||
+        (sSectionType && sSectionType == "image")) {
+      appendSeperatorDiv($container);
+      createImageInsertInContainer($container, oSection);
+      bDataAdded = true;
+    }
+  }else if ($element.attr('data-type') == "content") {
     var aSectionsInContent = applicationData.contentData[$element.attr('data-id')].sections;
 
     if (aSectionsInContent.length > 0) {
