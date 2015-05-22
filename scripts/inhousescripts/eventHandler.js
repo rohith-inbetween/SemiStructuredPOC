@@ -280,7 +280,7 @@ function saveContent (oEvent) {
     var $selectedContentListItem = $('.contentListItem[data-id="' + oCurrentlySelectedContent.id + '"]');
     $selectedContentListItem.next('.sectionList').replaceWith($sectionList);
     removeDirtyMarkFromContent($selectedContentListItem);
-    makeElementDraggable($sectionList.find('.contentListItem'));
+    makeElementDraggable($('.contentListItem'));
     if (oCurrentlySelectedContent.sections.length) {
       $selectedContentListItem.find('.content-section-expander').css('visibility', 'visible');
     }
