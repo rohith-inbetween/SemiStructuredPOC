@@ -16,6 +16,7 @@ function attachEventsOnElement () {
   $('body').on('click', '.remove-listitem', removeListItemClicked);
   $('body').on('click', '.edit-listitem', editListItemClicked);
   $('body').on('click', '.accept-edit', listItemEditAcceptClicked);
+  $('body').on('click', '.cancel-edit', listItemEditCancelClicked);
   makeElementDraggable($('.contentListItem'));
 
   $('#rightContainer').droppable({
@@ -678,5 +679,23 @@ function listItemEditAcceptClicked(oEvent){
   if(oCurrentlySelectedContent.id == sListItemId) {
     $('#contentLabel').text(sNewListName);
   }
+}
 
+function listItemEditCancelClicked(oEvent){
+  oEvent.stopPropagation();
+  var $listItem = $(oEvent.currentTarget).closest('.contentListItem ');
+  var sListItemId = $listItem.attr('data-id');
+  var sListItemType = $listItem.attr('data-type');
+  var $listItemLabel = $listItem.find('.contentListItemLabel');
+  $listItemLabel.attr('contenteditable','false');
+  $listItem.removeClass('in-edit');
+  var sPreviousListName;
+  if(sListItemType == 'content'){
+    var content = applicationData.contentData[sListItemId];
+    sPreviousListName = content.name;
+  } else if(sListItemType == 'section'){
+    var section = applicationData.sectionData[sListItemId];
+    sPreviousListName = section.name;
+  }
+  $listItemLabel.text(sPreviousListName);
 }
