@@ -323,3 +323,7 @@ div#listData {
 .control-component:hover .remove-section, .contentListItem:hover .remove-listitem {
     opacity: 1;
 }
+
+.contentListItem.basic-content-element .remove-listitem{
+    display: none;
+}

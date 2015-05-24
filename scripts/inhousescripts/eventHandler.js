@@ -286,7 +286,7 @@ function saveContent (oEvent) {
     computeSectionsData();
     saveSectionData();
     oCurrentlySelectedContent.isDirty = false;
-    var $sectionList = createNewSectionsList(oCurrentlySelectedContent.sections);
+    var $sectionList = createNewSectionsList(oCurrentlySelectedContent);
     var $selectedContentListItem = $('.contentListItem[data-id="' + oCurrentlySelectedContent.id + '"]');
     var $oldSectionList = $selectedContentListItem.next('.sectionList');
     $sectionList.css('display', $oldSectionList.css('display'));
@@ -336,7 +336,7 @@ function addContentToList (oContent) {
 function addContentItemDivToList ($contentList, oContent) {
   var $contentsListItem = createNewContentItem(oContent);
   $contentList.append($contentsListItem);
-  var $sectionsList = createNewSectionsList(oContent.sections);
+  var $sectionsList = createNewSectionsList(oContent);
   $contentList.append($sectionsList);
 
   return $contentsListItem;
@@ -362,7 +362,8 @@ function createNewContentItem (oContent) {
   return $contentListItem;
 }
 
-function createNewSectionsList (aSections) {
+function createNewSectionsList (oContent) {
+  var aSections = oContent.sections;
   var $sectionList = $('<div class="sectionList" style="display: none">');
 
   for (var iIndex = 0; iIndex < aSections.length; iIndex++) {
@@ -372,6 +373,7 @@ function createNewSectionsList (aSections) {
     $contentListItem.attr('data-type', 'section');
     $contentListItem.attr('data-id', oSection.id);
     $contentListItem.attr('data-name', oSection.name);
+    $contentListItem.attr('data-content-id', oContent.id);
 
     if(oSection.type){
       $contentListItem.attr('data-section-type', oSection.type);
@@ -550,7 +552,7 @@ function dropContent ($droppable, $draggable) {
   if (oCurrentlySelectedContent) {
     if($currentlySelectedContentItem.hasClass('basic-content-element')){
       alertify.warning("Cannot edit basic element");
-      return false;
+      return false ;
     }
     var bDataAdded = displayDataForContentElement($draggable, $droppable);
     if (bDataAdded) {
@@ -578,28 +580,38 @@ function contentChangedInEditor (oEvent, $editor) {
 
 function removeSectionRightPanelClicked(oEvent){
   var $sectionFrame =$(oEvent.currentTarget).closest('.control-component');
-  var sSectionId = $sectionFrame.attr('data-id');
-  removeSectionFromCurrentlySelectedContent(sSectionId, true);
-  $sectionFrame.prev('.right-container-field-seperator').remove();
-  $sectionFrame.remove();
+  var oMethodProxy = $.proxy(function($frameToDelete){
+    var sSectionId = $frameToDelete.attr('data-id');
+    removeSectionFromCurrentlySelectedContent(sSectionId, true);
+    $frameToDelete.prev('.right-container-field-seperator').remove();
+    $frameToDelete.remove();
+    $('[data-id="' + sSectionId + '"]').remove();
+  },this,$sectionFrame);
+  confirmDelete(oMethodProxy);
 }
 
 function removeSectionFromCurrentlySelectedContent(sSectionId){
   removeSectionFromSectionsList(aModifiedSectionsOfCurrentContent, sSectionId);
+  removeSectionFromSectionsList(oCurrentlySelectedContent.sections, sSectionId);
   markContentAsDirty($('.contentListItem[data-id="' + oCurrentlySelectedContent.id + '"]'));
 }
 
 function removeListItemClicked(oEvent){
   var $listItem =$(oEvent.currentTarget).closest('.contentListItem');
-  var sItemId = $listItem.attr('data-id');
-  var sItemType = $listItem.attr('data-type');
-  if(sItemType == 'content'){
-    removeContent(sItemId)
-  } else if(sItemType == 'section'){
-    var sContentId = $listItem.attr('data-content-id');
-    removeSectionFromContent(sContentId, sItemId);
-  }
-  $listItem.remove();
+
+  var oMethodProxy = $.proxy(function($listItemToDelete){
+    var sItemId = $listItemToDelete.attr('data-id');
+    var sItemType = $listItemToDelete.attr('data-type');
+    if(sItemType == 'content'){
+      removeContent(sItemId)
+    } else if(sItemType == 'section'){
+      var sContentId = $listItemToDelete.attr('data-content-id');
+      removeSectionFromContent(sContentId, sItemId);
+    }
+    $listItemToDelete.remove();
+  }, this, $listItem);
+  confirmDelete(oMethodProxy);
+
 }
 
 function removeSectionFromContent(sContentId,sSectionId){
@@ -609,11 +621,11 @@ function removeSectionFromContent(sContentId,sSectionId){
 }
 
 function removeContent(sContentId){
-  if(oCurrentlySelectedContent.id == sContentId){
+  if(oCurrentlySelectedContent && oCurrentlySelectedContent.id == sContentId){
     oCurrentlySelectedContent = null;
     $currentlySelectedContentItem = null;
     aModifiedSectionsOfCurrentContent = [];
-    $('#rightContainer').clear()
+    $('#rightContainer').empty()
   }
   delete(applicationData.contentData[sContentId]);
 }
@@ -626,4 +638,8 @@ function removeSectionFromSectionsList(aSectionsOfContent, sSectionId){
       break;
     }
   }
+}
+
+function confirmDelete(oMethodProxy){
+  alertify.confirm('Are you sure you wish to delete?', oMethodProxy);
 }
