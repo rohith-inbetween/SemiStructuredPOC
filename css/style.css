@@ -305,25 +305,59 @@ div#listData {
 
 .remove-section, .remove-listitem{
     color: red;
-    float: right;
-    cursor: pointer;
 }
 
 .remove-section {
     opacity: 0.4;
     margin: 4px 22px 0 0;
     font-size: 16px;
+    float: right;
 }
 
-.remove-listitem {
+.remove-listitem, .edit-listitem{
     opacity: 0.1;
-    margin: 0 8px 0 0;
 }
 
-.control-component:hover .remove-section, .contentListItem:hover .remove-listitem {
+.remove-listitem, .edit-listitem, .accept-edit, .cancel-edit{
+    margin: 0 8px 0 0;
+    float: right;
+    cursor: pointer;
+}
+
+.control-component:hover .remove-section,
+.contentListItem:hover .remove-listitem,
+.contentListItem:hover .edit-listitem {
     opacity: 1;
 }
 
-.contentListItem.basic-content-element .remove-listitem{
+.contentListItem.basic-content-element .remove-listitem,
+.contentListItem.basic-content-element .edit-listitem,
+.contentListItem .accept-edit,
+.contentListItem .cancel-edit{
     display: none;
+}
+
+.contentListItem.in-edit .contentListItemLabel{
+    background-color: white;
+    border: 1px solid black;
+    color: black;
+}
+
+.contentListItem.in-edit .edit-listitem,
+.contentListItem.in-edit .remove-listitem{
+    display:none;
+}
+
+.contentListItem.in-edit .accept-edit,
+.contentListItem.in-edit .cancel-edit{
+    display:block;
+}
+
+.contentListItem.in-edit .contentListItemLabel{
+    cursor: text;
+}
+
+.accept-edit, .cancel-edit{
+    color:black;
+    font-size: 16px;
 }

@@ -14,6 +14,8 @@ function attachEventsOnElement () {
   $('body').on('change', '.fileUpload', uploadImage);
   $('body').on('click', '.remove-section', removeSectionRightPanelClicked);
   $('body').on('click', '.remove-listitem', removeListItemClicked);
+  $('body').on('click', '.edit-listitem', editListItemClicked);
+  $('body').on('click', '.accept-edit', listItemEditAcceptClicked);
   makeElementDraggable($('.contentListItem'));
 
   $('#rightContainer').droppable({
@@ -358,6 +360,9 @@ function createNewContentItem (oContent) {
   if (!oContent.sections.length) {
     $contentListItem.find('.content-section-expander').css('visibility', 'hidden');
   }
+  $contentListItem.prepend($('<div class="accept-edit fa fa-check-circle-o">'));
+  $contentListItem.prepend($('<div class="cancel-edit fa fa-times-circle-o">'));
+  $contentListItem.prepend($('<div class="edit-listitem fa fa-pencil-square-o">'));
   $contentListItem.prepend($('<div class="remove-listitem fa fa-times-circle">'));
   return $contentListItem;
 }
@@ -642,4 +647,36 @@ function removeSectionFromSectionsList(aSectionsOfContent, sSectionId){
 
 function confirmDelete(oMethodProxy){
   alertify.confirm('Are you sure you wish to delete?', oMethodProxy);
+}
+
+function editListItemClicked(oEvent){
+  var $listItem = $(oEvent.currentTarget).closest('.contentListItem ');
+  var $listItemLabel = $listItem.find('.contentListItemLabel');
+  $listItemLabel.attr('contenteditable','true').focus();
+  $listItem.addClass('in-edit');
+}
+
+function listItemEditAcceptClicked(oEvent){
+  oEvent.stopPropagation();
+  var $listItem = $(oEvent.currentTarget).closest('.contentListItem ');
+  var sListItemId = $listItem.attr('data-id');
+  var sListItemType = $listItem.attr('data-type');
+  var $listItemLabel = $listItem.find('.contentListItemLabel');
+  $listItemLabel.attr('contenteditable','false');
+  $listItem.removeClass('in-edit');
+  var sNewListName = $listItemLabel.text();
+
+  if(sListItemType == 'content'){
+    var content = applicationData.contentData[sListItemId];
+    content.name = sNewListName;
+    sNewListName = "Content : " + sNewListName;
+  } else if(sListItemType == 'section'){
+    var section = applicationData.sectionData[sListItemId];
+    section.name = sNewListName;
+    sNewListName = "Section : " + sNewListName;
+  }
+  if(oCurrentlySelectedContent.id == sListItemId) {
+    $('#contentLabel').text(sNewListName);
+  }
+
 }
