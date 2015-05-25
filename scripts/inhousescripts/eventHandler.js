@@ -91,7 +91,7 @@ function createTextEditorInContainer ($element, oSectionData, bToBeAppendedInBet
 function getTextEditorDiv (oSectionData) {
   var title = "";
   if(oSectionData.originalContentName){
-    title = "copied from " + oSectionData.originalContentName;
+    title = "Original content - " + oSectionData.originalContentName;
   }
   var $newEditorContainer = $('<div title="' + title + '" data-id="'+ oSectionData.id +'" class="right-container-dropped-text-field control-component">');
   var $editor = $('<div class="text-editor contentContainer">');
