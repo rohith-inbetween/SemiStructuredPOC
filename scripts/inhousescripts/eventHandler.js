@@ -418,7 +418,7 @@ function createNewSectionsList (oContent) {
     if(oSection.type){
       $contentListItem.attr('data-section-type', oSection.type);
     }
-    var $contentLabel = $('<div class = "sectionListItemLabel" title="' + oSection.name + '">' + oSection.name + '</div>')
+    var $contentLabel = $('<div class = "contentListItemLabel" title="' + oSection.name + '">' + oSection.name + '</div>')
     $contentListItem.append($contentLabel);
     $contentListItem.prepend($('<div class="remove-listitem fa fa-times-circle">'));
 

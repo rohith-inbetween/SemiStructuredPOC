@@ -219,7 +219,7 @@ div.topPanelButton:hover {
     word-wrap: break-word;
     overflow: hidden;
     white-space: nowrap;
-    max-width: 150px;
+    max-width: 136px;
     display: inline-block;
     font-size: small;
 }
