@@ -309,6 +309,23 @@ function createContentListComponent () {
   var $contentListData = $('<div id="listData"></div>');
   $listContainer.append($searchInput);
   $listContainer.append($contentListData);
+  $searchInput.keyup(function(oEvent){
+    var $input = $(oEvent.currentTarget);
+    var searchString = $input.val();
+    $('#listData').jstree(true).search(searchString);
+  });
+  /*$contentListData.jstree({
+    plugins: ["search"],
+    search:{"show_only_matches":true},
+    core: {
+      themes: {
+        icons: false
+      },
+      data: [
+        {text: "hello"}
+      ]
+    }
+  });*/
 }
 
 function addContentToList (oContent) {
