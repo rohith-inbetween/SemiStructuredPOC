@@ -331,33 +331,6 @@ div#listData {
 }
 
 .contentListItem.basic-content-element .remove-listitem,
-.contentListItem.basic-content-element .edit-listitem,
-.contentListItem .accept-edit,
-.contentListItem .cancel-edit{
+.contentListItem.basic-content-element .edit-listitem{
     display: none;
-}
-
-.contentListItem.in-edit .contentListItemLabel{
-    background-color: white;
-    border: 1px solid black;
-    color: black;
-}
-
-.contentListItem.in-edit .edit-listitem,
-.contentListItem.in-edit .remove-listitem{
-    display:none;
-}
-
-.contentListItem.in-edit .accept-edit,
-.contentListItem.in-edit .cancel-edit{
-    display:block;
-}
-
-.contentListItem.in-edit .contentListItemLabel{
-    cursor: text;
-}
-
-.accept-edit, .cancel-edit{
-    color:black;
-    font-size: 16px;
 }
