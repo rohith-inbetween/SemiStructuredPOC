@@ -309,12 +309,6 @@ function createContentListComponent () {
   var $contentListData = $('<div id="listData"></div>');
   $listContainer.append($searchInput);
   $listContainer.append($contentListData);
-
-  $("#listdata").searcher({
-                            itemSelector: ".contentListItem",
-                            textSelector:  ".contentListItemLabel",
-                            inputSelector: "#content-search-input"
-                          });
 }
 
 function addContentToList (oContent) {
