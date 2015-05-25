@@ -15,6 +15,7 @@ function attachEventsOnElement () {
   $('body').on('click', '.remove-section', removeSectionRightPanelClicked);
   $('body').on('click', '.remove-listitem', removeListItemClicked);
   $('body').on('click', '.edit-listitem', editListItemClicked);
+  $('body').on('change', '.section-title-text', contentChangedInSection);
 
   makeElementDraggable($('.contentListItem'));
 
