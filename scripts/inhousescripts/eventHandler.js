@@ -93,7 +93,7 @@ function getTextEditorDiv (oSectionData) {
   }
   var sSectionName = oSectionData.name;
   $newEditorContainer.prepend(getSectionTitleBox(sSectionName));
-  $newEditorContainer.prepend($('<div class="remove-section fa fa-times-circle">'));
+  $newEditorContainer.prepend($('<div class="remove-section fa fa-times-circle" title="Remove Section">'));
 
   return $newEditorContainer;
 }
@@ -128,7 +128,7 @@ function getImageInsert (oSectionData) {
   $imageFrameComponent.append($imageContainer);
   $imageContainer.wrap('<div class="imageContainerFrame contentContainer ' + oSectionData.scalingClass + '"></div>');
   $imageFrameComponent.prepend(getSectionTitleBox(sSectionName));
-  $imageFrameComponent.prepend($('<div class="remove-section fa fa-times-circle">'));
+  $imageFrameComponent.prepend($('<div class="remove-section fa fa-times-circle" title="Remove Section">'));
 
   return $imageFrameComponent;
 }
@@ -477,7 +477,7 @@ function makeElementDraggable ($element) {
                                 var dragHeight = 10;
                                 var dragWidth = 10;
 
-                                return $('<div class="dragHelperDiv on-drag" >');
+                                return $('<div class="dragHelperDiv" >');
                               },
                               start: function (event, ui) {
                                 if (!oCurrentlySelectedContent) {
