@@ -1,3 +1,6 @@
+componentDragPositionOld = null;
+componentDragPositionNew = null;
+
 $imageDiv = null;
 
 oCurrentlySelectedContent = null;

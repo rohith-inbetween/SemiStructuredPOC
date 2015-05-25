@@ -46,6 +46,7 @@ function attachEventsOnElement () {
                                        var $container = $contextMenuContainer.parents('.imageContainerFrame');
                                        var sCssClass = ui.cmd;
                                        applyImageScalingCss($container, sCssClass);
+                                       contentChangedInSection();
                                      },
                                      beforeOpen: function (event, ui) {
                                        var $contextMenuContainer = ui.target;
@@ -63,7 +64,7 @@ function attachEventsOnElement () {
 }
 
 function createTextEditorInContainer ($element, oSectionData, bToBeAppendedInBetween, bDataBeingModified) {
-  appendSeperatorDiv($element, bToBeAppendedInBetween);
+  //appendSeperatorDiv($element, bToBeAppendedInBetween);
   if (!oSectionData) {
     oSectionData = $.extend({}, true, applicationData.sectionData.richTextControlSection);
     if(bDataBeingModified){
@@ -83,7 +84,7 @@ function createTextEditorInContainer ($element, oSectionData, bToBeAppendedInBet
   aModifiedSectionsOfCurrentContent.push(oSectionData);
 
   if (bToBeAppendedInBetween) {
-    $element.before(getTextEditorDiv(oSectionData));
+    $element.parent().before(getTextEditorDiv(oSectionData));
   } else {
     $element.append(getTextEditorDiv(oSectionData));
   }
@@ -96,7 +97,7 @@ function getTextEditorDiv (oSectionData) {
   }
   var $newEditorContainer = $('<div title="' + title + '" data-id="'+ oSectionData.id +'" class="right-container-dropped-text-field control-component">');
   var $editor = $('<div class="text-editor contentContainer">');
-
+  $editor.html(oSectionData.html);
   $newEditorContainer.append($editor);
   $editor.editable({
                      inlineMode: false,
@@ -105,18 +106,19 @@ function getTextEditorDiv (oSectionData) {
 
   $editor.on('editable.contentChanged', contentChangedInSection);
 
-  if (oSectionData.html.trim()) {
+  /*if (oSectionData.html.trim()) {
     $editor.editable('setHTML', oSectionData.html);
-  }
+  }*/
   var sSectionName = oSectionData.name;
   $newEditorContainer.prepend(getSectionTitleBox(sSectionName));
   $newEditorContainer.prepend($('<div class="remove-section fa fa-times-circle" title="Remove Section">'));
+  $newEditorContainer.prepend(getSeperatorDiv());
 
   return $newEditorContainer;
 }
 
 function createImageInsertInContainer ($element, oSectionData, bToBeAppendedInBetween, bDataBeingModified) {
-  appendSeperatorDiv($element, bToBeAppendedInBetween);
+  //appendSeperatorDiv($element, bToBeAppendedInBetween);
   if (!oSectionData) {
     oSectionData = $.extend({}, true, applicationData.sectionData.imageControlSection);
     if(bDataBeingModified){
@@ -136,7 +138,7 @@ function createImageInsertInContainer ($element, oSectionData, bToBeAppendedInBe
   aModifiedSectionsOfCurrentContent.push(oSectionData);
 
   if (bToBeAppendedInBetween) {
-    $element.before(getImageInsert(oSectionData));
+    $element.parent().before(getImageInsert(oSectionData));
   } else {
     $element.append(getImageInsert(oSectionData));
   }
@@ -162,6 +164,7 @@ function getImageInsert (oSectionData) {
   $imageContainer.wrap('<div class="imageContainerFrame contentContainer ' + oSectionData.scalingClass + '"></div>');
   $imageFrameComponent.prepend(getSectionTitleBox(sSectionName));
   $imageFrameComponent.prepend($('<div class="remove-section fa fa-times-circle" title="Remove Section">'));
+  $imageFrameComponent.prepend(getSeperatorDiv());
 
   return $imageFrameComponent;
 }
@@ -217,6 +220,22 @@ function appendSeperatorDiv ($element, bToBeAppendedInBetween) {
                               accept: ".contentListItem"
                             });
   //}
+}
+
+function getSeperatorDiv () {
+  var $seperatorDiv = $('<div class="right-container-field-seperator"><div id="seperator-line"></div></div>');
+  $seperatorDiv.droppable({
+                            hoverClass: "dragHover",
+                            greedy: true,
+                            drop: function (oEvent, ui) {
+                              var $draggable = ui.draggable;
+                              dropContent($(this), $draggable);
+
+                            },
+                            accept: ".contentListItem"
+                          });
+
+  return $seperatorDiv;
 }
 
 function applyImageScalingCss ($element, sCssClass) {
@@ -508,6 +527,28 @@ function displayDataForContentElement ($element, $container, bDataBeingModified)
       }
     }
   }
+
+  $container.sortable({
+                        items: "> .control-component",
+                        handle: ".section-title",
+                        start: function( event, ui ) {
+                          var $item = ui.item;
+                          componentDragPositionOld = $item.index();
+                        },
+                        stop: function( event, ui ) {
+                          var $item = ui.item;
+                          componentDragPositionNew = $item.index();
+                          if (componentDragPositionOld != componentDragPositionNew) {
+                            var aSections = aModifiedSectionsOfCurrentContent;
+                            //remove element from old index.
+                            var oElement = aSections.splice(componentDragPositionOld, 1)[0];
+                            //ad element to new index.
+                            aSections.splice(componentDragPositionNew, 0, oElement);
+
+                            contentChangedInSection();
+                          }
+                        }
+                      });
 
   return bDataAdded;
 }
