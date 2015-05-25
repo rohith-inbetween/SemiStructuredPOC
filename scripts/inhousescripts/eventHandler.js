@@ -61,13 +61,27 @@ function attachEventsOnElement () {
 
 }
 
-function createTextEditorInContainer ($element, oSectionData, bToBeAppendedInBetween) {
+function createTextEditorInContainer ($element, oSectionData, bToBeAppendedInBetween, bDataBeingModified) {
   appendSeperatorDiv($element, bToBeAppendedInBetween);
+  debugger;
   if (!oSectionData) {
     oSectionData = $.extend({}, true, applicationData.sectionData.richTextControlSection);
-    oSectionData.id = GUID.random();
+    oSectionData.originalContentId = oCurrentlySelectedContent.id;
+    oSectionData.originalContentName = oCurrentlySelectedContent.name;
+  } else {
+    oSectionData = $.extend({}, true, oSectionData);
   }
-  aModifiedSectionsOfCurrentContent.push(oSectionData);
+
+  if (bDataBeingModified) {
+    oSectionData.id = GUID.random();
+    if (oCurrentlySelectedContent && oSectionData.originalContentId != oCurrentlySelectedContent.id) {
+      oSectionData.name = oSectionData.name + '-' + oSectionData.originalContentName;
+    }
+  }
+
+  if (oCurrentlySelectedContent.type == 'content') {
+    aModifiedSectionsOfCurrentContent.push(oSectionData);
+  }
 
   if (bToBeAppendedInBetween) {
     $element.before(getTextEditorDiv(oSectionData));
@@ -77,7 +91,11 @@ function createTextEditorInContainer ($element, oSectionData, bToBeAppendedInBet
 }
 
 function getTextEditorDiv (oSectionData) {
-  var $newEditorContainer = $('<div data-id="'+ oSectionData.id +'" class="right-container-dropped-text-field control-component">');
+  var title = "";
+  if(oSectionData.originalContentName){
+    title = "copied from " + oSectionData.originalContentName;
+  }
+  var $newEditorContainer = $('<div title="' + title + '" data-id="'+ oSectionData.id +'" class="right-container-dropped-text-field control-component">');
   var $editor = $('<div class="text-editor contentContainer">');
 
   $newEditorContainer.append($editor);
@@ -98,13 +116,23 @@ function getTextEditorDiv (oSectionData) {
   return $newEditorContainer;
 }
 
-function createImageInsertInContainer ($element, oSectionData, bToBeAppendedInBetween) {
+function createImageInsertInContainer ($element, oSectionData, bToBeAppendedInBetween, bDataBeingModified) {
   appendSeperatorDiv($element, bToBeAppendedInBetween);
   if (!oSectionData) {
     oSectionData = $.extend({}, true, applicationData.sectionData.imageControlSection);
+    oSectionData.originalContentId = oCurrentlySelectedContent.id;
+    oSectionData.originalContentName  = oCurrentlySelectedContent.name;
+  } else if(bDataBeingModified && oCurrentlySelectedContent && oSectionData.originalContentId != oCurrentlySelectedContent.id) {
+    oSectionData.name = oSectionData.name + '-' + oSectionData.originalContentName;
+  }
+
+  if(bDataBeingModified){
     oSectionData.id = GUID.random();
   }
-  aModifiedSectionsOfCurrentContent.push(oSectionData);
+
+  if(oCurrentlySelectedContent.type=='content'){
+    aModifiedSectionsOfCurrentContent.push(oSectionData);
+  }
 
   if (bToBeAppendedInBetween) {
     $element.before(getImageInsert(oSectionData));
@@ -114,7 +142,11 @@ function createImageInsertInContainer ($element, oSectionData, bToBeAppendedInBe
 }
 
 function getImageInsert (oSectionData) {
-  var $imageFrameComponent = $('<div data-id="'+ oSectionData.id +'" class="right-container-dropped-image-container control-component">');
+  var title = "";
+  if(oSectionData.originalContentName){
+    title = "Original Content - " + oSectionData.originalContentName;
+  }
+  var $imageFrameComponent = $('<div title="' + title + '" data-id="'+ oSectionData.id +'" class="right-container-dropped-image-container control-component">');
   var sSectionName = oSectionData.name;
   var $imageContainer = $('<div class="imageContainer"></div>');
   var $addImageOption = $('<div class="addImageOption"><input class="fileUpload" type="file" accept="image/*" style="display: none"/><div class="insert-image-button" title="Add Image"/><div class="insert-image-label">Click to add image</div></div>');
@@ -277,7 +309,7 @@ function createContentDialogCallback (oEvent, sValue) {
   oContentData.id = GUID.random();
   oContentData.sections = [];
   oContentData.isDirty = false;
-
+  oContentData.type = 'content';
   applicationData.contentData[oContentData.id] = oContentData;
 
   addContentToList(oContentData);
@@ -376,6 +408,12 @@ function createNewSectionsList (oContent) {
     $contentListItem.attr('data-id', oSection.id);
     $contentListItem.attr('data-name', oSection.name);
     $contentListItem.attr('data-content-id', oContent.id);
+    $contentListItem.attr('data-content-name', oContent.name);
+    var originalContentId = oSection.originalContentId;
+    var originalContentName = oSection.originalContentName;
+    $contentListItem.attr('title', 'Original Content - ' + originalContentName);
+    $contentListItem.attr('data-original-content-id', originalContentId);
+    $contentListItem.attr('data-original-content-name', originalContentName);
 
     if(oSection.type){
       $contentListItem.attr('data-section-type', oSection.type);
@@ -423,7 +461,7 @@ function contentListItemClicked (oEvent) {
     }
     var $container = $('#rightContainer');
     $container.empty();
-    displayDataForContentElement($contentListItem, $container);
+    displayDataForContentElement($contentListItem, $container, false);
   }
   else {
     alertify.confirm("Unsaved changes!",
@@ -433,7 +471,7 @@ function contentListItemClicked (oEvent) {
   }
 }
 
-function displayDataForContentElement ($element, $container) {
+function displayDataForContentElement ($element, $container, bDataBeingModified) {
   var bDataAdded = false;
   var bToBeAppendedInBetween = $container.hasClass('right-container-field-seperator');
 
@@ -443,11 +481,11 @@ function displayDataForContentElement ($element, $container) {
     var oSection = applicationData.sectionData[sSectionId];
     if (sSectionId == "richTextControl" ||
         (sSectionType && sSectionType == "richTextEditor")) {
-      createTextEditorInContainer($container, oSection, bToBeAppendedInBetween);
+      createTextEditorInContainer($container, oSection, bToBeAppendedInBetween, bDataBeingModified);
       bDataAdded = true;
     } else if (sSectionId == "imageControl" ||
         (sSectionType && sSectionType == "image")) {
-      createImageInsertInContainer($container, oSection, bToBeAppendedInBetween);
+      createImageInsertInContainer($container, oSection, bToBeAppendedInBetween, bDataBeingModified);
       bDataAdded = true;
     }
   }else if ($element.attr('data-type') == "content") {
@@ -459,9 +497,9 @@ function displayDataForContentElement ($element, $container) {
         var sSectionId = aSectionsInContent[iIndex].id;
         var oSection = $.extend({}, true, applicationData.sectionData[sSectionId]);
         if (oSection.type == "richTextEditor") {
-          createTextEditorInContainer($container, oSection, bToBeAppendedInBetween);
+          createTextEditorInContainer($container, oSection, bToBeAppendedInBetween, bDataBeingModified);
         } else if (oSection.type == "image") {
-          createImageInsertInContainer($container, oSection, bToBeAppendedInBetween);
+          createImageInsertInContainer($container, oSection, bToBeAppendedInBetween, bDataBeingModified);
         }
       }
     }
@@ -556,7 +594,7 @@ function dropContent ($droppable, $draggable) {
       alertify.warning("Cannot edit basic element");
       return false ;
     }
-    var bDataAdded = displayDataForContentElement($draggable, $droppable);
+    var bDataAdded = displayDataForContentElement($draggable, $droppable, true);
     if (bDataAdded) {
       var sCurrentlySelectedContentListItemId = oCurrentlySelectedContent.id;
       var $selectedContentListItem = $('.contentListItem[data-id="' + sCurrentlySelectedContentListItemId + '"]');
@@ -605,7 +643,8 @@ function removeListItemClicked(oEvent){
     var sItemId = $listItemToDelete.attr('data-id');
     var sItemType = $listItemToDelete.attr('data-type');
     if(sItemType == 'content'){
-      removeContent(sItemId)
+      removeContent(sItemId);
+      $listItemToDelete.next('.sectionList').remove();
     } else if(sItemType == 'section'){
       var sContentId = $listItemToDelete.attr('data-content-id');
       removeSectionFromContent(sContentId, sItemId);
