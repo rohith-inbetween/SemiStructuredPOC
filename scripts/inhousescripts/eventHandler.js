@@ -102,7 +102,7 @@ function getTextEditorDiv (oSectionData) {
                      allowStyle: true
                    });
 
-  $editor.on('editable.contentChanged', contentChangedInEditor);
+  $editor.on('editable.contentChanged', contentChangedInSection);
 
   if (oSectionData.html.trim()) {
     $editor.editable('setHTML', oSectionData.html);
@@ -180,6 +180,7 @@ function addImageToContainer (oImageFiles) {
       if (file.type.indexOf('image') != -1) {
         $imageDiv.attr('src', e.target.result);
         $imageDiv = null;
+        contentChangedInSection();
       }
     }
   })(oImageFile);
@@ -616,7 +617,7 @@ function uploadImage (oEvent) {
   addImageToContainer(oImageFiles);
 }
 
-function contentChangedInEditor (oEvent, $editor) {
+function contentChangedInSection () {
   var $container = $('#rightContainer');
   if($container.attr('container-type') == 'content'){
     var contentId = oCurrentlySelectedContent.id;
