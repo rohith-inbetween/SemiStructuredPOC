@@ -314,18 +314,6 @@ function createContentListComponent () {
     var searchString = $input.val();
     $('#listData').jstree(true).search(searchString);
   });
-  /*$contentListData.jstree({
-    plugins: ["search"],
-    search:{"show_only_matches":true},
-    core: {
-      themes: {
-        icons: false
-      },
-      data: [
-        {text: "hello"}
-      ]
-    }
-  });*/
 }
 
 function addContentToList (oContent) {
