@@ -330,3 +330,7 @@ div#listData {
 .contentListItem.basic-content-element .edit-listitem{
     display: none;
 }
+
+#rightContainer[container-type="section"] .remove-section{
+    display:none;
+}

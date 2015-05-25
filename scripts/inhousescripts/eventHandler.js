@@ -63,23 +63,21 @@ function attachEventsOnElement () {
 
 function createTextEditorInContainer ($element, oSectionData, bToBeAppendedInBetween, bDataBeingModified) {
   appendSeperatorDiv($element, bToBeAppendedInBetween);
-  debugger;
   if (!oSectionData) {
     oSectionData = $.extend({}, true, applicationData.sectionData.richTextControlSection);
-    oSectionData.originalContentId = oCurrentlySelectedContent.id;
-    oSectionData.originalContentName = oCurrentlySelectedContent.name;
+    if(bDataBeingModified){
+      oSectionData.originalContentId = oCurrentlySelectedContent.id;
+      oSectionData.originalContentName = oCurrentlySelectedContent.name;
+    }
   } else {
     oSectionData = $.extend({}, true, oSectionData);
   }
 
   if (bDataBeingModified) {
-    oSectionData.id = GUID.random();
     if (oCurrentlySelectedContent && oSectionData.originalContentId != oCurrentlySelectedContent.id) {
       oSectionData.name = oSectionData.name + '-' + oSectionData.originalContentName;
     }
-  }
-
-  if (oCurrentlySelectedContent.type == 'content') {
+    oSectionData.id = GUID.random();
     aModifiedSectionsOfCurrentContent.push(oSectionData);
   }
 
@@ -120,17 +118,19 @@ function createImageInsertInContainer ($element, oSectionData, bToBeAppendedInBe
   appendSeperatorDiv($element, bToBeAppendedInBetween);
   if (!oSectionData) {
     oSectionData = $.extend({}, true, applicationData.sectionData.imageControlSection);
-    oSectionData.originalContentId = oCurrentlySelectedContent.id;
-    oSectionData.originalContentName  = oCurrentlySelectedContent.name;
-  } else if(bDataBeingModified && oCurrentlySelectedContent && oSectionData.originalContentId != oCurrentlySelectedContent.id) {
-    oSectionData.name = oSectionData.name + '-' + oSectionData.originalContentName;
+    if(bDataBeingModified){
+      oSectionData.originalContentId = oCurrentlySelectedContent.id;
+      oSectionData.originalContentName = oCurrentlySelectedContent.name;
+    }
+  } else {
+    oSectionData = $.extend({}, true, oSectionData);
   }
 
   if(bDataBeingModified){
+    if (oCurrentlySelectedContent && oSectionData.originalContentId != oCurrentlySelectedContent.id) {
+      oSectionData.name = oSectionData.name + '-' + oSectionData.originalContentName;
+    }
     oSectionData.id = GUID.random();
-  }
-
-  if(oCurrentlySelectedContent.type=='content'){
     aModifiedSectionsOfCurrentContent.push(oSectionData);
   }
 
@@ -450,16 +450,18 @@ function contentListItemClicked (oEvent) {
     var sListItemName = $contentListItem.attr('data-name');
     var sListItemType = $contentListItem.attr('data-type');
     var sListItemId = $contentListItem.attr('data-id');
+    var $container = $('#rightContainer');
     if(sListItemType == 'content'){
+      $container.attr('container-type','content');
       oCurrentlySelectedContent = applicationData.contentData[sListItemId];
       $('#contentLabel').text("Content : " + sListItemName);
       $('#saveContent').removeClass('disabled');
     } else if(sListItemType == 'section'){
+      $container.attr('container-type','section');
       oCurrentlySelectedContent = applicationData.sectionData[sListItemId];
       $('#contentLabel').text("Section : " + sListItemName);
       $('#saveContent').addClass('disabled');
     }
-    var $container = $('#rightContainer');
     $container.empty();
     displayDataForContentElement($contentListItem, $container, false);
   }
