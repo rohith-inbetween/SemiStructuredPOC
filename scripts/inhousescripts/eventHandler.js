@@ -78,8 +78,8 @@ function createTextEditorInContainer ($element, oSectionData, bToBeAppendedInBet
       oSectionData.name = oSectionData.name + '-' + oSectionData.originalContentName;
     }
     oSectionData.id = GUID.random();
-    aModifiedSectionsOfCurrentContent.push(oSectionData);
   }
+  aModifiedSectionsOfCurrentContent.push(oSectionData);
 
   if (bToBeAppendedInBetween) {
     $element.before(getTextEditorDiv(oSectionData));
@@ -131,8 +131,8 @@ function createImageInsertInContainer ($element, oSectionData, bToBeAppendedInBe
       oSectionData.name = oSectionData.name + '-' + oSectionData.originalContentName;
     }
     oSectionData.id = GUID.random();
-    aModifiedSectionsOfCurrentContent.push(oSectionData);
   }
+  aModifiedSectionsOfCurrentContent.push(oSectionData);
 
   if (bToBeAppendedInBetween) {
     $element.before(getImageInsert(oSectionData));
@@ -617,7 +617,12 @@ function uploadImage (oEvent) {
 }
 
 function contentChangedInEditor (oEvent, $editor) {
-
+  var $container = $('#rightContainer');
+  if($container.attr('container-type') == 'content'){
+    var contentId = oCurrentlySelectedContent.id;
+    var $element = $('.contentListItem[data-id="' + contentId + '"]');
+    markContentAsDirty($element);
+  }
 }
 
 function removeSectionRightPanelClicked(oEvent){
